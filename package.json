@@ -10,16 +10,18 @@
     "eslint": "eslint ./"
   },
   "dependencies": {
+    "@emotion/react": "^11.1.5",
     "next": "10.0.8",
     "react": "17.0.1",
     "react-dom": "17.0.1"
   },
   "devDependencies": {
+    "@emotion/babel-plugin": "^11.2.0",
     "@next/bundle-analyzer": "^10.0.8",
     "@types/node": "^14.14.32",
     "@types/react": "^17.0.3",
-    "@typescript-eslint/eslint-plugin": "^4.16.1",
-    "@typescript-eslint/parser": "^4.16.1",
+    "@typescript-eslint/eslint-plugin": "^4.17.0",
+    "@typescript-eslint/parser": "^4.17.0",
     "cross-env": "^7.0.3",
     "eslint": "^7.21.0",
     "eslint-config-prettier": "^8.1.0",
