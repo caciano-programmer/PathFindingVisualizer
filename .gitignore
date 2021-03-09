@@ -10,6 +10,9 @@
 /.next/
 /out/
 
+# package.json lock file
+package-lock.json
+
 # production
 /build
 
