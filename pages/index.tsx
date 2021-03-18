@@ -1,15 +1,17 @@
+import Link from 'next/link';
 import { css } from '@emotion/react';
-import { HtmlHead } from '../components/htmlHead';
 
-const hotpink = css({
-  color: 'hotpink',
+const container = css({
+  height: '85%',
+  width: '100%',
 });
 
 export default function Home() {
   return (
-    <>
-      <HtmlHead />
-      <div css={hotpink}>Hi</div>
-    </>
+    <div css={container}>
+      <Link href="/path">
+        <a>Path</a>
+      </Link>
+    </div>
   );
 }

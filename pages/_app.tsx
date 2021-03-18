@@ -1,16 +1,42 @@
+import type { AppProps } from 'next/app';
+import Head from 'next/head';
 import React from 'react';
-import ErrorBoundary from '../components/errorBoundary';
+import { ErrorBoundary } from 'react-error-boundary';
+import { Header } from '../components/header';
 
 import '../styles/globals.css';
 
-function MyApp({ Component, pageProps }) {
+export default function MyApp({ Component }: AppProps) {
   return (
-    <ErrorBoundary>
+    <>
+      <HtmlHead />
       <React.StrictMode>
-        <Component {...pageProps} />
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <Header />
+          <Component />
+        </ErrorBoundary>
       </React.StrictMode>
-    </ErrorBoundary>
+    </>
   );
 }
 
-export default MyApp;
+function HtmlHead() {
+  return (
+    <Head>
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Graph Visualizer</title>
+      <meta name="description" content="App to visualize path finding algorithms." />
+      <link rel="icon" href="/favicon.ico" />
+    </Head>
+  );
+}
+
+function ErrorFallback({ error, resetErrorBoundary }: any) {
+  return (
+    <div role="alert">
+      <p>Something went wrong:</p>
+      <pre>{error.message}</pre>
+      <button onClick={resetErrorBoundary}>Try again</button>
+    </div>
+  );
+}

@@ -22,10 +22,12 @@ module.exports = {
       plugins: ['prettier'],
       rules: {
         'prettier/prettier': 'warn',
+        'arrow-body-style': ['warn', 'never'],
         'react/react-in-jsx-scope': 'off',
         'react/prop-types': 'off',
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
+        '@typescript-eslint/no-explicit-any': 'off',
       },
     },
   ],
