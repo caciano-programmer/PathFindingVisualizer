@@ -1,10 +1,12 @@
-import { css } from '@emotion/react';
+import { Table } from '../components/table';
 
-const container = css({
-  height: '85%',
-  width: '100%',
-});
+const TABLE_ROWS = 25;
+const TABLE_COLUMNS = 50;
 
 export default function Path() {
-  return <h1 css={container}>Path</h1>;
+  return (
+    <div className="app-container">
+      <Table rows={TABLE_ROWS} columns={TABLE_COLUMNS} />
+    </div>
+  );
 }
