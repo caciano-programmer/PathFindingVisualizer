@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { Cell } from '../components/cell';
+import { buildAdjacencyList, dijkstra, setWeights } from '../algorithms/algorithms';
 
 const Grid = styled.div(
   { height: '100%', width: '100%', display: 'grid', border: '1px solid black' },
@@ -12,6 +13,10 @@ const Grid = styled.div(
 
 export const Table = ({ columns, rows }: { columns: number; rows: number }) => {
   const [clicked, setClicked] = useState(false);
+
+  const list = buildAdjacencyList(6, 6);
+  const paths = dijkstra(list, 34, setWeights(20, [11, 17, 23, 29, 35]));
+  console.log(paths);
 
   useEffect(() => {
     const listenerDown = () => setClicked(true);
@@ -27,7 +32,7 @@ export const Table = ({ columns, rows }: { columns: number; rows: number }) => {
   return (
     <Grid columns={columns} rows={rows}>
       {[...new Array(rows * columns)].map((_, index) => (
-        <Cell key={index} clicked={clicked} />
+        <Cell key={index} clicked={clicked} value={index + 1} />
       ))}
     </Grid>
   );
