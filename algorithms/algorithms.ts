@@ -2,8 +2,7 @@
 
 import { AdjacencyList, Weights } from './utils';
 
-// TODO implement BFS, DFS, bellman-ford, bidirectional
-// TODO optional best-first-search, D* or D* lite, floyd-warshell, johnsons
+// TODO optional best-first-search, D* or D* lite
 
 type SinglePath = { length: number; path: number[] };
 export type Path = Map<number, SinglePath> | SinglePath;
@@ -15,6 +14,7 @@ export const dijkstra = (list: AdjacencyList, start: number, weights: Weights = 
   for (const key of list.keys()) paths.set(key, { length: Infinity, path: [] });
   paths.set(start, { length: 0, path: [start] });
   const visited: number[] = [];
+
   const fn = (current = start): Path => {
     visited.push(current);
     const neighbors = list.get(current)!;
@@ -27,13 +27,15 @@ export const dijkstra = (list: AdjacencyList, start: number, weights: Weights = 
     for (const neighbor of neighbors) if (!visited.includes(neighbor)) fn(neighbor);
     return paths;
   };
+
   return { paths: fn(), visited };
 };
 
-export const Astar = (list: AdjacencyList, start: number, dest: number, row: number, weights?: Weights): Explored => {
+export const aStar = (list: AdjacencyList, start: number, dest: number, row: number, weights?: Weights): Explored => {
   const startNode = { key: start, movement: 0, value: heuristic(start, dest, row), path: [start] };
-  const open = new PriorityQueue(startNode);
+  const open = new AstarPriorityQueue(startNode);
   const closed: Map<number, AstarNode> = new Map();
+
   const fn = (): Path => {
     const node = open.deQueue()!;
     closed.set(node.key, node);
@@ -49,7 +51,74 @@ export const Astar = (list: AdjacencyList, start: number, dest: number, row: num
     }
     return fn();
   };
+
   return { paths: fn(), visited: open.explored() };
+};
+
+export const bellmanFord = (list: AdjacencyList, start: number, weights?: Weights): Explored => {
+  const paths: Path = new Map();
+  const visitedOrder: Set<number> = new Set();
+  for (const vertice of list.keys()) paths.set(vertice, { length: Infinity, path: [] });
+  paths.set(start, { length: 0, path: [start] });
+
+  for (let times = list.size - 1, updatesMade = true; times > 0; times--, updatesMade = false) {
+    const open: ListSet<number> = new ListSet(start);
+    for (let vertices = list.size; vertices > 0; vertices--) {
+      const current = open.shift()!;
+      visitedOrder.add(current);
+      for (const edge of list.get(current)!) {
+        open.push(edge);
+        const cost = paths.get(current)!.length + (weights?.get(edge)?.weight || 1);
+        if (cost < paths.get(edge)!.length) {
+          updatesMade = true;
+          paths.set(edge, { length: cost, path: [...paths.get(current)!.path, edge] });
+        }
+      }
+    }
+    if (!updatesMade) break;
+  }
+
+  return { paths, visited: [...visitedOrder] };
+};
+
+export const depthFirstSearch = (list: AdjacencyList, start: number, destination: number): Explored => {
+  const paths: Path = new Map();
+  const visited: Set<number> = new Set([start]);
+  paths.set(start, { length: 0, path: [start] });
+
+  const fn = (current: number): void => {
+    const currentPath = paths.get(current)!.path;
+    if (current === destination) return;
+    for (const neighbor of list.get(current)!.filter(node => !visited.has(node))) {
+      paths.set(neighbor, { length: currentPath.length, path: [...currentPath, neighbor] });
+      visited.add(neighbor);
+      fn(neighbor);
+    }
+  };
+  fn(start);
+
+  return { paths: paths.get(destination)!, visited: [...visited] };
+};
+
+export const breadthFirstSearch = (list: AdjacencyList, start: number, destination: number): Explored => {
+  const paths: Path = new Map();
+  const visited: Set<number> = new Set([start]);
+  paths.set(start, { length: 0, path: [start] });
+
+  const fn = (layer: number[] = [start]): SinglePath => {
+    const children: number[] = [];
+    for (const parent of layer)
+      for (const child of list.get(parent)!.filter(node => !visited.has(node))) {
+        visited.add(child);
+        const parentNode = paths.get(parent)!;
+        paths.set(child, { length: parentNode.length + 1, path: [...parentNode.path, child] });
+        if (child === destination) return paths.get(child)!;
+        children.push(child);
+      }
+    return fn(children);
+  };
+
+  return { paths: fn(), visited: [...visited] };
 };
 
 //=========================================Helper Functions=========================================
@@ -67,19 +136,19 @@ function heuristic(current: number, dest: number, row: number): number {
 }
 
 /*  
-  Priority Queue used for A* algorithm, useful optimization since 
-  there is the need to constantly retrieving the node with smallest value
+  Priority Queue used for A* algorithm, useful optimization since there is the need to constantly retrieve 
+  the node with smallest value(heuristic + movement cost), not neccessary but greatly improves performance
 */
-class PriorityQueue {
+class AstarPriorityQueue {
   private Dictionary: Map<number, AstarNode> = new Map();
   private Queue: AstarNode[] = [];
-  private Explored: number[] = [];
+  private Explored: Set<number> = new Set();
   constructor(startNode: AstarNode) {
     this.set(startNode);
   }
   deQueue(): AstarNode | undefined {
     const removed = this.Queue.shift();
-    if (removed) this.Explored.push(removed.key);
+    if (removed) this.Explored.add(removed.key);
     return removed;
   }
   get(key: number): AstarNode | undefined {
@@ -89,17 +158,37 @@ class PriorityQueue {
     return [...this.Explored, ...this.Queue.map(node => node.key)];
   }
   set(item: AstarNode): void {
-    let middle = this.Queue.length === 0 ? 0 : Math.floor((this.Queue.length - 1) / 2);
-    for (let start = 0, end = this.Queue.length - 1; end >= start; middle = Math.floor((end - start) / 2) + start) {
-      if (middle === 0 || item.value === this.Queue[middle].value) break;
-      else if (item.value < this.Queue[middle].value) end = middle - 1;
-      else start = middle + 1;
-    }
     this.Dictionary.set(item.key, item);
+    this.Explored.add(item.key);
     if (this.Queue.length === 0) this.Queue.push(item);
     else {
+      let middle = this.Queue.length === 0 ? 0 : Math.floor((this.Queue.length - 1) / 2);
+      for (let start = 0, end = this.Queue.length - 1; end >= start; middle = Math.floor((end - start) / 2) + start) {
+        if (middle === 0 || item.value === this.Queue[middle].value) break;
+        else if (item.value < this.Queue[middle].value) end = middle - 1;
+        else start = middle + 1;
+      }
       if (this.Queue[middle].value < item.value) middle++;
       this.Queue.splice(middle, 0, item);
     }
+  }
+}
+
+// Extends javascript Set to be able to pop unique elements from a separate list, while not affecting current set
+class ListSet<Type> extends Set {
+  private list: Type[] = [];
+  constructor(items?: Type | Type[]) {
+    super();
+    if (items && Array.isArray(items)) for (const item of items) this.push(item);
+    else if (items) this.push(items);
+  }
+  push(item: Type): ListSet<Type> {
+    const prevSize = this.size;
+    this.add(item);
+    if (this.size > prevSize) this.list.push(item);
+    return this;
+  }
+  shift(): Type | undefined {
+    return this.list.shift();
   }
 }
