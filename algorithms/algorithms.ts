@@ -2,8 +2,6 @@
 
 import { AdjacencyList, Weights } from './utils';
 
-// TODO optional best-first-search, D* or D* lite
-
 type SinglePath = { length: number; path: number[] };
 export type Path = Map<number, SinglePath> | SinglePath;
 export type Explored = { paths: Path; visited: number[] };

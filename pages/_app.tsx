@@ -2,7 +2,6 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
-import { Header } from '../components/header';
 
 import '../styles/globals.css';
 
@@ -12,7 +11,6 @@ export default function MyApp({ Component }: AppProps) {
       <HtmlHead />
       <React.StrictMode>
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <Header />
           <Component />
         </ErrorBoundary>
       </React.StrictMode>
