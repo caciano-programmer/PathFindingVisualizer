@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
+import { SerializedStyles } from '@emotion/utils';
 import { Cell } from './cell';
 
 const Grid = styled.div(
@@ -10,7 +11,13 @@ const Grid = styled.div(
   }),
 );
 
-export const Table = ({ columns, rows }: { columns: number; rows: number }) => {
+type TableProp = {
+  columns: number;
+  rows: number;
+  styles: SerializedStyles;
+};
+
+export const Table = ({ columns, rows, styles }: TableProp) => {
   const [clicked, setClicked] = useState(false);
 
   useEffect(() => {
@@ -25,7 +32,7 @@ export const Table = ({ columns, rows }: { columns: number; rows: number }) => {
   }, []);
 
   return (
-    <Grid columns={columns} rows={rows}>
+    <Grid columns={columns} rows={rows} css={styles}>
       {[...new Array(rows * columns)].map((_, index) => (
         <Cell key={index} clicked={clicked} value={index + 1} />
       ))}

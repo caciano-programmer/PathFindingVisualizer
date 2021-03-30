@@ -1,5 +1,5 @@
 import { Table } from '../components/table/table';
-import { css } from '@emotion/react';
+import { css, SerializedStyles } from '@emotion/react';
 import { useMediaQuery, Screen } from '../hooks/mediaQuery';
 import { Header } from '../components/header/header';
 import { Sidebar } from '../components/sidebar/sidebar';
@@ -19,16 +19,19 @@ const container = css({
   gridTemplateRows: '3fr 17fr',
 });
 const headerGrid = css({ gridColumn: 'span 2' });
+const tableGrid = (screen: Screen) => css({ gridColumn: screen === Screen.Desktop ? 'span 1' : 'span 2' });
 
 export default function Home() {
   const screen = useMediaQuery();
+  const tableGridCss: SerializedStyles = tableGrid(screen);
   return (
     <div css={container}>
       <Header styles={headerGrid} />
-      <Sidebar />
+      {screen === Screen.Desktop && <Sidebar />}
       <Table
         rows={screen === Screen.Desktop ? ROWS : screen === Screen.MobilePortrait ? PORTRAIT_ROWS : LANDSCAPE_ROWS}
         columns={screen === Screen.Desktop ? COLS : screen === Screen.MobilePortrait ? PORTRAIT_COLS : LANDSCAPE_COLS}
+        styles={tableGridCss}
       />
     </div>
   );

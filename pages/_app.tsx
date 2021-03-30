@@ -24,7 +24,7 @@ function HtmlHead() {
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>Graph Visualizer</title>
       <meta name="description" content="App to visualize path finding algorithms." />
-      <link rel="icon" href="/favicon.ico" />
+      <link rel="icon" href="/favicon-16x16.png" />
     </Head>
   );
 }

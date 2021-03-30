@@ -7,7 +7,15 @@ export type Path = Map<number, SinglePath> | SinglePath;
 export type Explored = { paths: Path; visited: number[] };
 type AstarNode = { key: number; movement: number; value: number; path: number[] };
 
-export const dijkstra = (list: AdjacencyList, start: number, weights: Weights = new Map()): Explored => {
+export const algorithms = {
+  'Breadth First Search': breadthFirstSearch,
+  "Dijkstra's": dijkstra,
+  'A*': aStar,
+  'Bellman-Ford': bellmanFord,
+  'Depth First Search': depthFirstSearch,
+};
+
+function dijkstra(list: AdjacencyList, start: number, weights: Weights = new Map()): Explored {
   const paths: Path = new Map();
   for (const key of list.keys()) paths.set(key, { length: Infinity, path: [] });
   paths.set(start, { length: 0, path: [start] });
@@ -27,9 +35,9 @@ export const dijkstra = (list: AdjacencyList, start: number, weights: Weights = 
   };
 
   return { paths: fn(), visited };
-};
+}
 
-export const aStar = (list: AdjacencyList, start: number, dest: number, row: number, weights?: Weights): Explored => {
+function aStar(list: AdjacencyList, start: number, dest: number, row: number, weights?: Weights): Explored {
   const startNode = { key: start, movement: 0, value: heuristic(start, dest, row), path: [start] };
   const open = new AstarPriorityQueue(startNode);
   const closed: Map<number, AstarNode> = new Map();
@@ -51,9 +59,9 @@ export const aStar = (list: AdjacencyList, start: number, dest: number, row: num
   };
 
   return { paths: fn(), visited: open.explored() };
-};
+}
 
-export const bellmanFord = (list: AdjacencyList, start: number, weights?: Weights): Explored => {
+function bellmanFord(list: AdjacencyList, start: number, weights?: Weights): Explored {
   const paths: Path = new Map();
   const visitedOrder: Set<number> = new Set();
   for (const vertice of list.keys()) paths.set(vertice, { length: Infinity, path: [] });
@@ -77,9 +85,9 @@ export const bellmanFord = (list: AdjacencyList, start: number, weights?: Weight
   }
 
   return { paths, visited: [...visitedOrder] };
-};
+}
 
-export const depthFirstSearch = (list: AdjacencyList, start: number, destination: number): Explored => {
+function depthFirstSearch(list: AdjacencyList, start: number, destination: number): Explored {
   const paths: Path = new Map();
   const visited: Set<number> = new Set([start]);
   paths.set(start, { length: 0, path: [start] });
@@ -96,9 +104,9 @@ export const depthFirstSearch = (list: AdjacencyList, start: number, destination
   fn(start);
 
   return { paths: paths.get(destination)!, visited: [...visited] };
-};
+}
 
-export const breadthFirstSearch = (list: AdjacencyList, start: number, destination: number): Explored => {
+function breadthFirstSearch(list: AdjacencyList, start: number, destination: number): Explored {
   const paths: Path = new Map();
   const visited: Set<number> = new Set([start]);
   paths.set(start, { length: 0, path: [start] });
@@ -117,7 +125,7 @@ export const breadthFirstSearch = (list: AdjacencyList, start: number, destinati
   };
 
   return { paths: fn(), visited: [...visited] };
-};
+}
 
 //=========================================Helper Functions=========================================
 
