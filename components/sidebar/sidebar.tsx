@@ -1,8 +1,11 @@
-import { css } from '@emotion/react';
-import WeightSvg from '../../public/weights.svg';
+import { css, SerializedStyles } from '@emotion/react';
+import KettlebellSvg from '../../public/kettlebell.svg';
 import TutorialSvg from '../../public/tutorial.svg';
 import LightThemeSvg from '../../public/light.svg';
 import DarkThemeSvg from '../../public/dark.svg';
+import CodeSvg from '../../public/code.svg';
+import StartSvg from '../../public/start.svg';
+import DestinationSvg from '../../public/end.svg';
 
 const container = css({
   display: 'flex',
@@ -11,12 +14,19 @@ const container = css({
 const child = css({
   flex: '1',
 });
+const icons = css({ width: '40px', height: '40px', cursor: 'pointer' });
 
-export const Sidebar = () => (
-  <div css={container}>
+type SidebarProps = { styles: SerializedStyles };
+
+export const Sidebar = ({ styles }: SidebarProps) => (
+  <div css={[container, styles]}>
     <div css={child}>
       Tutorial
       <TutorialSvg />
+    </div>
+    <div css={child}>
+      Algorithm Code
+      <CodeSvg css={icons} />
     </div>
     <div css={child}>
       Theme
@@ -26,16 +36,20 @@ export const Sidebar = () => (
     <div css={child}>
       <div>
         Small:
-        <WeightSvg />
+        <KettlebellSvg css={icons} />
       </div>
       <div>
         Large:
-        <WeightSvg />
+        <KettlebellSvg css={icons} />
       </div>
     </div>
     <div css={child}>
       <button type="button">Generate Maze</button>
     </div>
-    <div css={child}>Colors of dividers</div>
+    <div css={child}>
+      Colors of dividers
+      <StartSvg />
+      <DestinationSvg />
+    </div>
   </div>
 );
