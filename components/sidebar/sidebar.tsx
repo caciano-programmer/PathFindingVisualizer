@@ -6,10 +6,12 @@ import DarkThemeSvg from '../../public/dark.svg';
 import CodeSvg from '../../public/code.svg';
 import StartSvg from '../../public/start.svg';
 import DestinationSvg from '../../public/end.svg';
+import MazeSvg from '../../public/maze.svg';
 
 const container = css({
   display: 'flex',
   flexDirection: 'column',
+  padding: '1vw',
 });
 const child = css({
   flex: '1',
@@ -44,7 +46,10 @@ export const Sidebar = ({ styles }: SidebarProps) => (
       </div>
     </div>
     <div css={child}>
-      <button type="button">Generate Maze</button>
+      <button type="button">
+        Randomized Maze
+        <MazeSvg css={icons} />
+      </button>
     </div>
     <div css={child}>
       Colors of dividers

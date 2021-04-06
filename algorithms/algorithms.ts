@@ -8,12 +8,19 @@ export type Explored = { paths: Path; visited: number[] };
 type AstarNode = { key: number; movement: number; value: number; path: number[] };
 
 export const algorithms = {
-  'Breadth First Search': breadthFirstSearch,
-  "Dijkstra's": dijkstra,
-  'A*': aStar,
-  'Bellman-Ford': bellmanFord,
-  'Depth First Search': depthFirstSearch,
+  bfs: { name: 'Breadth First Search' as const, fn: breadthFirstSearch },
+  dijkstra: { name: "Dijkstra's" as const, fn: dijkstra },
+  aStar: { name: 'A*' as const, fn: aStar },
+  bellmanFord: { name: 'Bellman-Ford' as const, fn: bellmanFord },
+  dfs: { name: 'Depth First Search' as const, fn: depthFirstSearch },
 };
+export enum AlgorithmKey {
+  bfs = 'bfs',
+  dijkstra = 'dijkstra',
+  aStar = 'aStar',
+  bellmanFord = 'bellmanFord',
+  dfs = 'dfs',
+}
 
 function dijkstra(list: AdjacencyList, start: number, weights: Weights = new Map()): Explored {
   const paths: Path = new Map();
@@ -27,7 +34,7 @@ function dijkstra(list: AdjacencyList, start: number, weights: Weights = new Map
     const currentPath = paths.get(current)!;
     for (const neighbor of neighbors) {
       const neighborPath = paths.get(neighbor)!;
-      const weight = currentPath.length + (weights.get(neighbor)?.weight || 1);
+      const weight = currentPath.length + (weights.get(neighbor)?.weight ?? 1);
       if (weight < neighborPath.length) paths.set(neighbor, { length: weight, path: [...currentPath.path, neighbor] });
     }
     for (const neighbor of neighbors) if (!visited.includes(neighbor)) fn(neighbor);
@@ -47,7 +54,7 @@ function aStar(list: AdjacencyList, start: number, dest: number, row: number, we
     closed.set(node.key, node);
     if (node.key === dest) return { length: node.movement, path: node.path };
     for (const adjacent of list.get(node.key)!) {
-      const weight = weights?.get(adjacent)?.weight || 1;
+      const weight = weights?.get(adjacent)?.weight ?? 1;
       const value = heuristic(adjacent, dest, row) + weight;
       const notInLists = !open.get(adjacent) && !closed.get(adjacent);
       const betterThanClosed = closed.get(adjacent) && value < closed.get(adjacent)!.value;
@@ -74,7 +81,7 @@ function bellmanFord(list: AdjacencyList, start: number, weights?: Weights): Exp
       visitedOrder.add(current);
       for (const edge of list.get(current)!) {
         open.push(edge);
-        const cost = paths.get(current)!.length + (weights?.get(edge)?.weight || 1);
+        const cost = paths.get(current)!.length + (weights?.get(edge)?.weight ?? 1);
         if (cost < paths.get(edge)!.length) {
           updatesMade = true;
           paths.set(edge, { length: cost, path: [...paths.get(current)!.path, edge] });

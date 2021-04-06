@@ -1,17 +1,58 @@
 import { css } from '@emotion/react';
-import { Dispatch, SetStateAction } from 'react';
+import { useSwipeable } from 'react-swipeable';
+import CloseSvg from '../../public/exit.svg';
+import MazeSvg from '../../public/maze.svg';
+import TutorialSvg from '../../public/tutorial.svg';
+import LightThemeSvg from '../../public/light.svg';
+import DarkThemeSvg from '../../public/dark.svg';
+import CodeSvg from '../../public/code.svg';
+import StartSvg from '../../public/start.svg';
+import DestinationSvg from '../../public/end.svg';
 
-const container = css({
-  display: 'none',
-  height: '100%',
-  width: '80%',
-  position: 'absolute',
-  top: 0,
-  right: 0,
-  backgroundColor: 'white',
-  opacity: '30%',
-});
+const container = (open: boolean) =>
+  css({
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    width: '80%',
+    position: 'fixed',
+    top: 0,
+    right: open ? 0 : '-80%',
+    backgroundColor: 'grey',
+    transition: 'right .75s ease-out',
+  });
+const icon = css({ cursor: 'pointer', width: '60px', height: '60px' });
 
-type SlideableProps = { open: boolean; close: Dispatch<SetStateAction<boolean>> };
+type SlideableProps = { open: boolean; close: () => void };
 
-export const Slideable = ({ open, close }: SlideableProps) => <div css={container}>Mobile</div>;
+export const Slideable = ({ open, close }: SlideableProps) => {
+  const handlers = useSwipeable({ onSwipedRight: close });
+  const containerCss = container(open);
+  return (
+    <div css={containerCss} {...handlers}>
+      <CloseSvg onClick={close} css={icon} />
+      <div>
+        Tutorial
+        <TutorialSvg css={icon} />
+      </div>
+      <div>
+        Algorithm Code
+        <CodeSvg css={icon} />
+      </div>
+      <div>
+        Theme
+        <LightThemeSvg css={icon} />
+        <DarkThemeSvg css={icon} />
+      </div>
+      <div>
+        Generate Randomized Maze
+        <MazeSvg css={icon} />
+      </div>
+      <div>
+        Colors
+        <StartSvg css={icon} />
+        <DestinationSvg css={icon} />
+      </div>
+    </div>
+  );
+};
