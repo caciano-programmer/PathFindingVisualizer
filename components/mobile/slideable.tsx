@@ -19,7 +19,7 @@ const container = (open: boolean) =>
     top: 0,
     right: open ? 0 : '-80%',
     backgroundColor: 'grey',
-    transition: 'right .75s ease-out',
+    transition: 'right .25s linear',
   });
 const icon = css({ cursor: 'pointer', width: '60px', height: '60px' });
 

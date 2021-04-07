@@ -1,48 +1,78 @@
 import { useState } from 'react';
-import { css, SerializedStyles } from '@emotion/react';
-import Start from '../../public/start.svg';
+import { css } from '@emotion/react';
 import { useDrag, useDrop } from 'react-dnd';
+import Start from '../../public/start.svg';
+import End from '../../public/end.svg';
+import { Weight } from '../../config/config';
 
-const icon = css({ width: '100%', height: '100%' });
+const fullSize = css({ width: '100%', height: '100%' });
+const icon = css({ ...fullSize });
 const getCellCss = (visited: boolean) =>
   css({ borderRight: '1px solid black', borderTop: '1px solid black', backgroundColor: visited ? 'blue' : 'white' });
 
+enum MoveType {
+  START = 'start',
+  END = 'end',
+}
+
 type CellProps = {
   clicked: boolean;
+  clickOff: () => void;
   value: number;
   start: number;
-  setStart: (start: number) => void;
-  styles?: SerializedStyles;
+  moveStart: (start: number) => void;
+  end: number;
+  moveEnd: (end: number) => void;
+  walls: number[];
   editWalls: (wall: number, add: boolean) => void;
+  weights: Weight;
+  setWeights: (weight: number, node: number) => void;
+  occupied: (node: number, checkWalls?: boolean) => boolean;
 };
 
-export const Cell = ({ clicked, value, styles, start, setStart, editWalls }: CellProps) => {
+export const Cell = (props: CellProps) => {
   const [visited, setVisited] = useState(false);
-  const cellCss = getCellCss(visited);
   const [{ isDraggingStart }, dragStart] = useDrag({
-    type: 'start',
-    item: value,
+    type: MoveType.START,
+    item: { val: props.value },
     collect: monitor => ({ isDraggingStart: !!monitor.isDragging() }),
+    end: props.clickOff,
   });
   const [{ isDraggingEnd }, dragEnd] = useDrag({
-    type: 'end',
-    item: value,
+    type: MoveType.END,
+    item: { val: props.value },
     collect: monitor => ({ isDraggingEnd: !!monitor.isDragging() }),
+    end: props.clickOff,
   });
-  const [dropCollected, drop] = useDrop({ accept: ['start', 'end'], drop: () => setStart(value) });
+  const [_, drop] = useDrop({
+    accept: Object.values(MoveType),
+    drop({ val }: { val: number }) {
+      const isOccupied = props.occupied(props.value);
+      if (val === props.start && !isOccupied) props.moveStart(props.value);
+      if (val === props.end && !isOccupied) props.moveEnd(props.value);
+    },
+  });
 
   const visit = (clicked = true) => {
-    if (clicked && !isDraggingStart && !isDraggingEnd) {
-      editWalls(value, !visited);
+    const isOccupied = props.occupied(props.value, false);
+    if (clicked && !isDraggingStart && !isDraggingEnd && !isOccupied) {
+      props.editWalls(props.value, !visited);
       setVisited(!visited);
     }
   };
 
+  const cellCss = getCellCss(visited);
+
   return (
-    <div css={[cellCss, styles]} ref={drop} onMouseOver={() => visit(clicked)} onMouseDown={() => visit()}>
-      {value === start && (
-        <div ref={dragStart} style={{ width: '100%', height: '100%' }}>
-          <Start css={icon} />
+    <div css={cellCss} ref={drop} onMouseOver={() => visit(props.clicked)} onMouseDown={() => visit()}>
+      {props.value === props.start && (
+        <div ref={dragStart} css={fullSize}>
+          <Start css={icon} preserveAspectRatio="none" />
+        </div>
+      )}
+      {props.value === props.end && (
+        <div ref={dragEnd} css={fullSize}>
+          <End css={icon} preserveAspectRatio="none" />
         </div>
       )}
     </div>

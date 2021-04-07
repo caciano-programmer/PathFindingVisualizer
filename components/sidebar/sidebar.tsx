@@ -13,9 +13,7 @@ const container = css({
   flexDirection: 'column',
   padding: '1vw',
 });
-const child = css({
-  flex: '1',
-});
+const child = css({ flex: '1' });
 const icons = css({ width: '40px', height: '40px', cursor: 'pointer' });
 
 type SidebarProps = { styles: SerializedStyles };
