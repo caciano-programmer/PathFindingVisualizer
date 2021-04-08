@@ -1,7 +1,5 @@
 import { AlgorithmKey } from '../algorithms/algorithms';
 
-export type Weight = { small: number[]; large: number[] };
-
 export const ROWS = 8;
 export const COLUMNS = 18;
 export const MOBILE_GRID_LIMIT = 9;
@@ -15,6 +13,13 @@ export enum Progress {
   COMPLETED = 'completed',
 }
 
-export type State = { status: Progress; algorithm: AlgorithmKey; path: number[] };
+export type State = { status: Progress; algorithm: AlgorithmKey };
 
-export const InitialState: State = { status: Progress.IDLE, algorithm: AlgorithmKey.bfs, path: [] };
+export const InitialState: State = { status: Progress.IDLE, algorithm: AlgorithmKey.bfs };
+
+export enum DragType {
+  START = 'start',
+  END = 'end',
+  WEIGHT = 'weight',
+}
+export type DragItem = { type: DragType };

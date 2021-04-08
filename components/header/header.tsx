@@ -6,7 +6,7 @@ import { AlgorithmKey, algorithms } from '../../algorithms/algorithms';
 import { MOBILE, DESKTOP } from '../../config/config';
 import { Slideable } from '../mobile/slideable';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectAlgorithm, setAlgorithm } from '../../store/store';
+import { selectAlgorithm, setAlgorithm } from '../../redux/store';
 
 const container = css({ display: 'flex', flexDirection: 'row', alignItems: 'center' });
 const desktop = css({ [MOBILE]: { display: 'none' } });

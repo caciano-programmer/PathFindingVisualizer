@@ -9,7 +9,7 @@ import { Header } from '../components/header/header';
 import { Sidebar } from '../components/sidebar/sidebar';
 import { Footer } from '../components/mobile/footer';
 import { ROWS, COLUMNS, MOBILE, DESKTOP, MOBILE_GRID_LIMIT } from '../config/config';
-import { store } from '../store/store';
+import { store } from '../redux/store';
 
 const DynamicTable = dynamic(() => import('../components/table/table'));
 
@@ -42,18 +42,18 @@ export default function Home() {
     <Provider store={store}>
       <div css={container}>
         <Header styles={header} />
-        <Sidebar styles={sidebar} />
         {table.touch === false && (
           <DndProvider backend={HTML5Backend}>
+            <Sidebar styles={sidebar} />
             <DynamicTable rows={table.rows} columns={table.columns} styles={tableCss} />
           </DndProvider>
         )}
         {table.touch && (
           <DndProvider backend={TouchBackend}>
             <DynamicTable rows={table.rows} columns={table.columns} styles={tableCss} />
+            <Footer styles={footer} />
           </DndProvider>
         )}
-        <Footer styles={footer} />
       </div>
     </Provider>
   );

@@ -18,25 +18,14 @@ const algorithmSlice = createSlice({
   reducers: { setAlgorithm: (_, action: PayloadAction<AlgorithmKey>) => action.payload },
 });
 
-const pathSlice = createSlice({
-  name: 'path',
-  initialState: InitialState.path,
-  reducers: {
-    setPath: (state, action) => {
-      state = action.payload;
-    },
-  },
-});
-
 export const { setStatusIdle, setStatusComplete, setStatusProgress } = statusSlice.actions;
 export const { setAlgorithm } = algorithmSlice.actions;
-export const { setPath } = pathSlice.actions;
 
 export const selectStatus = (state: State) => state;
 export const selectAlgorithm = (state: State) => ({ key: state.algorithm, algorithm: algorithms[state.algorithm] });
 export const selectPath = (state: number[]) => state;
 
 export const store = configureStore({
-  reducer: { status: statusSlice.reducer, algorithm: algorithmSlice.reducer, path: pathSlice.reducer },
+  reducer: { status: statusSlice.reducer, algorithm: algorithmSlice.reducer },
   preloadedState: InitialState,
 });
