@@ -1,7 +1,9 @@
+import React from 'react';
 import { css, SerializedStyles } from '@emotion/react';
 import styled from '@emotion/styled';
-import { useState, useEffect } from 'react';
-import { Cell } from './cell';
+import { useReducer } from 'react';
+import { MemoizedCell } from './cell';
+import { InitialTableState, tableReducer } from './table-reducer';
 
 const border = css({
   width: 'calc(100% - 2vw)',
@@ -22,56 +24,23 @@ const Grid = styled.div(
 type TableProp = {
   columns: number;
   rows: number;
+  start: number;
+  end: number;
   styles: SerializedStyles;
 };
 
-export default function Table({ columns, rows, styles }: TableProp) {
-  const [clicked, setClicked] = useState(false);
-  const [start, moveStart] = useState(1);
-  const [end, moveEnd] = useState(81);
-  const [walls, setWalls] = useState([] as number[]);
-  const [weights, setWeights] = useState([] as number[]);
-
-  useEffect(() => {
-    const listenerDown = () => setClicked(true);
-    const listenerUp = () => setClicked(false);
-    window.addEventListener('mousedown', listenerDown);
-    window.addEventListener('mouseup', listenerUp);
-    return () => {
-      window.removeEventListener('mousedown', listenerDown);
-      window.removeEventListener('mouseup', listenerUp);
-    };
-  }, []);
-
-  const occupied = (node: number, checkWalls = true): boolean => {
-    return (checkWalls && walls.includes(node)) || weights.includes(node) || node === start || node === end;
-  };
+export default function Table({ columns, rows, start, end, styles }: TableProp) {
+  const initialState = React.useMemo(() => InitialTableState(start, end), [start, end]);
+  const reducer = tableReducer(initialState);
+  const [tableData, dispatch] = useReducer(reducer, initialState);
 
   return (
     <div css={[border, styles]}>
       <Grid rows={rows} columns={columns}>
         {[...new Array(rows * columns)].map((_, index) => (
-          <Cell
-            key={index}
-            clicked={clicked}
-            clickOff={() => setClicked(false)}
-            value={index + 1}
-            start={start}
-            moveStart={(node: number) => moveStart(node)}
-            end={end}
-            moveEnd={(node: number) => moveEnd(node)}
-            walls={walls}
-            editWalls={(number, add) => setWalls(previous => editArray(previous, number, add))}
-            weights={weights}
-            setWeights={(number, add) => setWeights(previous => editArray(previous, number, add))}
-            occupied={(node: number, checkWalls?: boolean): boolean => occupied(node, checkWalls)}
-          />
+          <MemoizedCell key={index} value={index + 1} dispatch={dispatch} initial={initialState} />
         ))}
       </Grid>
     </div>
   );
-}
-
-function editArray(array: number[], number: number, add: boolean): number[] {
-  return add ? [...array, number] : array.filter(element => element !== number);
 }

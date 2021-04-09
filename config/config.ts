@@ -1,8 +1,12 @@
 import { AlgorithmKey } from '../algorithms/algorithms';
 
-export const ROWS = 8;
-export const COLUMNS = 18;
-export const MOBILE_GRID_LIMIT = 9;
+export const ROWS = 15;
+export const COLUMNS = 40;
+export const MOBILE_GRID_LIMIT = 13;
+export const START = 285;
+export const END = 315;
+export const M_START = 1;
+export const M_END = 169;
 
 export const DESKTOP = '@media(min-width: 1000px)';
 export const MOBILE = '@media(max-width: 999px)';

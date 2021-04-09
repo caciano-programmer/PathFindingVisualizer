@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { Header } from '../components/header/header';
 import { Sidebar } from '../components/sidebar/sidebar';
 import { Footer } from '../components/mobile/footer';
-import { ROWS, COLUMNS, MOBILE, DESKTOP, MOBILE_GRID_LIMIT } from '../config/config';
+import { ROWS, COLUMNS, MOBILE, DESKTOP, MOBILE_GRID_LIMIT, START, M_END, END, M_START } from '../config/config';
 import { store } from '../redux/store';
 
 const DynamicTable = dynamic(() => import('../components/table/table'));
@@ -17,14 +17,13 @@ const container = css({
   width: '100%',
   height: '100%',
   display: 'grid',
-  gridTemplateColumns: '3fr 17fr',
-  [DESKTOP]: { gridTemplateRows: '3fr 17fr' },
-  [MOBILE]: { gridTemplateRows: '2fr 17fr 2.5fr' },
+  [DESKTOP]: { gridTemplateRows: '3fr 17fr', gridTemplateColumns: '3fr 17fr' },
+  [MOBILE]: { gridTemplateRows: '1.75fr 17fr 2.25fr', gridTemplateColumns: '1fr' },
 });
 const header = css({ gridColumn: 'span 2' });
 const sidebar = css({ [MOBILE]: { display: 'none' } });
 const tableCss = css({ [DESKTOP]: { gridColumn: 'span 1' }, [MOBILE]: { gridColumn: 'span 2' } });
-const footer = css({ gridColumn: 'span 2', [DESKTOP]: { display: 'none' } });
+const footer = css({ gridColumn: 'span 2', minHeight: 0, [DESKTOP]: { display: 'none' } });
 
 export default function Home() {
   const [table, setTable] = useState({ touch: null as null | boolean, rows: ROWS, columns: COLUMNS });
@@ -45,12 +44,12 @@ export default function Home() {
         {table.touch === false && (
           <DndProvider backend={HTML5Backend}>
             <Sidebar styles={sidebar} />
-            <DynamicTable rows={table.rows} columns={table.columns} styles={tableCss} />
+            <DynamicTable rows={table.rows} columns={table.columns} styles={tableCss} start={START} end={END} />
           </DndProvider>
         )}
         {table.touch && (
           <DndProvider backend={TouchBackend}>
-            <DynamicTable rows={table.rows} columns={table.columns} styles={tableCss} />
+            <DynamicTable rows={table.rows} columns={table.columns} styles={tableCss} start={M_START} end={M_END} />
             <Footer styles={footer} />
           </DndProvider>
         )}

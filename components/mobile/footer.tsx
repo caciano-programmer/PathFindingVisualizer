@@ -6,8 +6,8 @@ import { useDrag } from 'react-dnd';
 import { DragType } from '../../config/config';
 
 const container = css({ display: 'flex' });
-const iconHolder = css({ flex: 1 });
-const icon = css({ height: '100%', weight: '100%', minHeight: 0, minWidth: 0 });
+const iconHolder = css({ flex: 1, minWidth: 0 });
+const icon = css({ height: '100%', weight: '100%' });
 const algorithm = css({ flex: 1 });
 const initialize = css({ flex: 1 });
 

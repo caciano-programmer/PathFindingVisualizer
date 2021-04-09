@@ -1,68 +1,81 @@
+import React, { Dispatch, useState } from 'react';
 import { css } from '@emotion/react';
-import { useDrag, useDrop } from 'react-dnd';
+import { DragSourceMonitor, useDrag, useDrop } from 'react-dnd';
 import Start from '../../public/start.svg';
 import End from '../../public/end.svg';
 import KettlebellSvg from '../../public/kettlebell.svg';
 import { DragItem, DragType } from '../../config/config';
+import { startAction, endAction, wallAction, weightAction, TableState } from './table-reducer';
 
 const fullSize = css({ width: '100%', height: '100%' });
 const icon = css({ ...fullSize });
 const getCellCss = (visited: boolean) =>
   css({ borderRight: '1px solid black', borderTop: '1px solid black', backgroundColor: visited ? 'blue' : 'white' });
 
-type CellProps = {
-  clicked: boolean;
-  clickOff: () => void;
-  value: number;
-  start: number;
-  moveStart: (start: number) => void;
-  end: number;
-  moveEnd: (end: number) => void;
-  walls: number[];
-  editWalls: (wall: number, add: boolean) => void;
-  weights: number[];
-  setWeights: (weight: number, add: boolean) => void;
-  occupied: (node: number, checkWalls?: boolean) => boolean;
-};
+type CellProps = { value: number; dispatch: Dispatch<any>; initial: TableState };
 
-export const Cell = (props: CellProps) => {
-  const isOccupied = props.occupied(props.value);
-  const isWall = props.walls.includes(props.value);
-  const isWeighted = props.weights.includes(props.value);
-  const isNode = props.value === props.start || props.value === props.end;
+const Cell = ({ value, dispatch, initial }: CellProps) => {
+  const [isStart, toggleIsStart] = useState(value === initial.start);
+  const [isEnd, toggleIsEnd] = useState(value === initial.end);
+  const [isWall, toggleIsWall] = useState(false);
+  const [isWeight, toggleIsWeight] = useState(false);
   const cellCss = getCellCss(isWall);
+  const free = !isStart && !isEnd && !isWall && !isWeight;
 
-  const dragStart = useDrag({ type: DragType.START, item: { type: DragType.START } })[1];
-  const dragEnd = useDrag({ type: DragType.END, item: { type: DragType.END } })[1];
+  const dispatchStart = () => {
+    dispatch(startAction(value));
+    toggleIsStart(previous => !previous);
+  };
+  const dispatchEnd = () => {
+    dispatch(endAction(value));
+    toggleIsEnd(previous => !previous);
+  };
+  const dispatchWeight = () => {
+    dispatch(weightAction(value));
+    toggleIsWeight(previous => !previous);
+  };
+  const dispatchWall = () => {
+    dispatch(wallAction(value));
+    toggleIsWall(previous => !previous);
+  };
+
+  const dragged = (item: { type: DragType }, monitor: DragSourceMonitor) => {
+    if (item.type === DragType.START && monitor.didDrop()) toggleIsStart(false);
+    else if (item.type === DragType.END && monitor.didDrop()) toggleIsEnd(false);
+  };
+  const dragStart = useDrag({ type: DragType.START, item: { type: DragType.START }, end: dragged })[1];
+  const dragEnd = useDrag({ type: DragType.END, item: { type: DragType.END }, end: dragged })[1];
   const drop = useDrop({
     accept: Object.values(DragType),
     drop({ type }: DragItem) {
-      props.clickOff();
-      if (type === DragType.START && !isOccupied) props.moveStart(props.value);
-      if (type === DragType.END && !isOccupied) props.moveEnd(props.value);
-      if (type === DragType.WEIGHT && !isOccupied) props.setWeights(props.value, true);
+      if (type === DragType.START) dispatchStart();
+      if (type === DragType.END) dispatchEnd();
+      if (type === DragType.WEIGHT) dispatchWeight();
     },
+    canDrop: () => free,
   })[1];
 
-  const visit = (clicked: boolean, mouseover = true) => {
-    if (mouseover && clicked && !isOccupied) props.editWalls(props.value, !isWall);
-    if (!mouseover && isWeighted) props.setWeights(props.value, false);
-    if (!mouseover && !isNode && !isWeighted) props.editWalls(props.value, !isWall);
+  const clickCell = () => {
+    if (isWeight) dispatchWeight();
+    if (isWall || free) dispatchWall();
+  };
+  const visit = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if ((event.ctrlKey || event.shiftKey) && (free || isWall)) dispatchWall();
   };
 
   return (
-    <div css={cellCss} ref={drop} onMouseLeave={() => visit(props.clicked)} onMouseDown={() => visit(true, false)}>
-      {props.value === props.start && (
+    <div css={cellCss} ref={drop} onMouseEnter={visit} onClick={clickCell}>
+      {isStart && (
         <div ref={dragStart} css={fullSize}>
           <Start css={icon} preserveAspectRatio="none" />
         </div>
       )}
-      {props.value === props.end && (
+      {isEnd && (
         <div ref={dragEnd} css={fullSize}>
           <End css={icon} preserveAspectRatio="none" />
         </div>
       )}
-      {props.weights.includes(props.value) && (
+      {isWeight && (
         <div css={fullSize}>
           <KettlebellSvg css={icon} preserveAspectRatio="none" />
         </div>
@@ -70,3 +83,5 @@ export const Cell = (props: CellProps) => {
     </div>
   );
 };
+
+export const MemoizedCell = React.memo(Cell);
