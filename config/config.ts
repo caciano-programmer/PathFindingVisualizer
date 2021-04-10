@@ -1,10 +1,11 @@
 import { AlgorithmKey } from '../algorithms/algorithms';
+import { nanoid } from 'nanoid';
 
-export const ROWS = 15;
-export const COLUMNS = 40;
+export const ROWS = 13;
+export const COLUMNS = 30;
 export const MOBILE_GRID_LIMIT = 13;
-export const START = 285;
-export const END = 315;
+export const START = 185;
+export const END = 205;
 export const M_START = 1;
 export const M_END = 169;
 
@@ -17,9 +18,10 @@ export enum Progress {
   COMPLETED = 'completed',
 }
 
-export type State = { status: Progress; algorithm: AlgorithmKey };
+export type State = { status: Progress; algorithm: AlgorithmKey; sessionId: string };
 
-export const InitialState: State = { status: Progress.IDLE, algorithm: AlgorithmKey.bfs };
+const initialID = nanoid();
+export const InitialState: State = { status: Progress.IDLE, algorithm: AlgorithmKey.aStar, sessionId: initialID };
 
 export enum DragType {
   START = 'start',

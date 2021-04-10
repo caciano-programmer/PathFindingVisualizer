@@ -8,16 +8,16 @@ export type Explored = { paths: Path; visited: number[] };
 type AstarNode = { key: number; movement: number; value: number; path: number[] };
 
 export const algorithms = {
-  bfs: { name: 'Breadth First Search' as const, fn: breadthFirstSearch },
-  dijkstra: { name: "Dijkstra's" as const, fn: dijkstra },
   aStar: { name: 'A*' as const, fn: aStar },
+  dijkstra: { name: "Dijkstra's" as const, fn: dijkstra },
+  bfs: { name: 'Breadth First Search' as const, fn: breadthFirstSearch },
   bellmanFord: { name: 'Bellman-Ford' as const, fn: bellmanFord },
   dfs: { name: 'Depth First Search' as const, fn: depthFirstSearch },
 };
 export enum AlgorithmKey {
-  bfs = 'bfs',
-  dijkstra = 'dijkstra',
   aStar = 'aStar',
+  dijkstra = 'dijkstra',
+  bfs = 'bfs',
   bellmanFord = 'bellmanFord',
   dfs = 'dfs',
 }

@@ -6,7 +6,7 @@ import { AlgorithmKey, algorithms } from '../../algorithms/algorithms';
 import { MOBILE, DESKTOP } from '../../config/config';
 import { Slideable } from '../mobile/slideable';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectAlgorithm, setAlgorithm } from '../../redux/store';
+import { resetState, selectAlgorithm, setAlgorithm } from '../../redux/store';
 
 const container = css({ display: 'flex', flexDirection: 'row', alignItems: 'center' });
 const desktop = css({ [MOBILE]: { display: 'none' } });
@@ -22,7 +22,7 @@ type HeaderProps = {
 
 export const Header = ({ styles }: HeaderProps) => {
   const [options, showOptions] = useState(false);
-  const { key, algorithm } = useSelector(selectAlgorithm);
+  const { key } = useSelector(selectAlgorithm);
   const dispatch = useDispatch();
 
   return (
@@ -32,7 +32,7 @@ export const Header = ({ styles }: HeaderProps) => {
         <select
           css={[algorithmCss, desktop]}
           value={key}
-          onChange={e => dispatch(setAlgorithm(e.target.value as AlgorithmKey))}
+          onChange={event => dispatch(setAlgorithm(event.target.value as AlgorithmKey))}
         >
           {Object.entries(algorithms).map(([currentKey, { name }]) => (
             <option key={currentKey} value={currentKey} disabled={key === currentKey}>
@@ -43,8 +43,12 @@ export const Header = ({ styles }: HeaderProps) => {
         <button type="button" css={[initialize, desktop]}>
           Visualize!
         </button>
-        <ResetSvg css={[icon, desktop]} />
-        <MenuSvg css={[icon, mobile]} onClick={() => showOptions(true)} />
+        <div onClick={() => dispatch(resetState())}>
+          <ResetSvg css={[icon, desktop]} />
+        </div>
+        <div onClick={() => showOptions(true)}>
+          <MenuSvg css={[icon, mobile]} />
+        </div>
       </header>
       <Slideable open={options} close={() => showOptions(false)} />
     </>

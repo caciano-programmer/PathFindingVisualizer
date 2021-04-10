@@ -38,7 +38,13 @@ export default function Table({ columns, rows, start, end, styles }: TableProp) 
     <div css={[border, styles]}>
       <Grid rows={rows} columns={columns}>
         {[...new Array(rows * columns)].map((_, index) => (
-          <MemoizedCell key={index} value={index + 1} dispatch={dispatch} initial={initialState} />
+          <MemoizedCell
+            key={index}
+            value={index + 1}
+            dispatch={dispatch}
+            start={initialState.start}
+            end={initialState.end}
+          />
         ))}
       </Grid>
     </div>
