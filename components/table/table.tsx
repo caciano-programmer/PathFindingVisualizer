@@ -1,9 +1,11 @@
-import React from 'react';
+import { useEffect } from 'react';
 import { css, SerializedStyles } from '@emotion/react';
 import styled from '@emotion/styled';
 import { useReducer } from 'react';
 import { MemoizedCell } from './cell';
-import { InitialTableState, tableReducer } from './table-reducer';
+import { InitialTableState, resetTable, tableReducer } from './table-reducer';
+import { useSelector } from 'react-redux';
+import { selectSessionId } from '../../redux/store';
 
 const border = css({
   width: 'calc(100% - 2vw)',
@@ -30,21 +32,20 @@ type TableProp = {
 };
 
 export default function Table({ columns, rows, start, end, styles }: TableProp) {
-  const initialState = React.useMemo(() => InitialTableState(start, end), [start, end]);
+  const initialState = InitialTableState(start, end);
   const reducer = tableReducer(initialState);
-  const [tableData, dispatch] = useReducer(reducer, initialState);
+  const [{ startNode, endNode, walls, weights }, dispatch] = useReducer(reducer, initialState);
+  const sessionId = useSelector(selectSessionId);
+
+  useEffect(() => {
+    dispatch(resetTable());
+  }, [sessionId]);
 
   return (
     <div css={[border, styles]}>
       <Grid rows={rows} columns={columns}>
         {[...new Array(rows * columns)].map((_, index) => (
-          <MemoizedCell
-            key={index}
-            value={index + 1}
-            dispatch={dispatch}
-            start={initialState.start}
-            end={initialState.end}
-          />
+          <MemoizedCell key={index} value={index + 1} dispatch={dispatch} start={start} end={end} />
         ))}
       </Grid>
     </div>

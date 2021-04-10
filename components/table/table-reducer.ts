@@ -4,19 +4,25 @@ export const startAction = createAction<number>('start');
 export const endAction = createAction<number>('end');
 export const wallAction = createAction<number>('addWall');
 export const weightAction = createAction<number>('removeWeight');
+export const resetTable = createAction('resetTable');
 
-export type TableState = { start: number; end: number; walls: number[]; weights: number[] };
+export type TableState = { startNode: number; endNode: number; walls: number[]; weights: number[] };
 
-export const InitialTableState = (start: number, end: number): TableState => ({ start, end, walls: [], weights: [] });
+export const InitialTableState = (startNode: number, endNode: number): TableState => ({
+  startNode,
+  endNode,
+  walls: [],
+  weights: [],
+});
 
 export const tableReducer = (initialState: TableState) =>
   createReducer(initialState, builder =>
     builder
-      .addCase(startAction, (state, action) => {
-        state.start = action.payload;
+      .addCase(startAction, (state, { payload }) => {
+        state.startNode = payload;
       })
-      .addCase(endAction, (state, action) => {
-        state.end = action.payload;
+      .addCase(endAction, (state, { payload }) => {
+        state.endNode = payload;
       })
       .addCase(wallAction, ({ walls }, { payload }) => {
         if (walls.includes(payload)) walls.splice(walls.indexOf(payload), 1);
@@ -25,5 +31,6 @@ export const tableReducer = (initialState: TableState) =>
       .addCase(weightAction, ({ weights }, { payload }) => {
         if (weights.includes(payload)) weights.splice(weights.indexOf(payload), 1);
         else weights.push(payload);
-      }),
+      })
+      .addCase(resetTable, () => initialState),
   );

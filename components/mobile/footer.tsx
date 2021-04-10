@@ -4,7 +4,7 @@ import ResetSvg from '../../public/refresh.svg';
 import KettlebellSvg from '../../public/kettlebell.svg';
 import { useDrag } from 'react-dnd';
 import { DragType } from '../../config/config';
-import { selectAlgorithm, setAlgorithm } from '../../redux/store';
+import { resetState, selectAlgorithm, setAlgorithm } from '../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 
 const container = css({ display: 'flex' });
@@ -39,7 +39,7 @@ export const Footer = ({ styles }: FooterProps) => {
       <button type="button" css={initialize}>
         Visualize!
       </button>
-      <div css={iconHolder}>
+      <div css={iconHolder} onClick={() => dispatch(resetState())}>
         <ResetSvg css={icon} preserveAspectRatio="none" />
       </div>
     </div>

@@ -7,10 +7,10 @@ import Start from '../../public/start.svg';
 import End from '../../public/end.svg';
 import KettlebellSvg from '../../public/kettlebell.svg';
 import { DragItem, DragType } from '../../config/config';
-import { startAction, endAction, wallAction, weightAction, TableState } from './table-reducer';
+import { startAction, endAction, wallAction, weightAction } from './table-reducer';
+import { cellReducer, resetCell, initialCell, toggleEnd, toggleWeight, toggleWall, toggleStart } from './cell-reducer';
 import { useSelector } from 'react-redux';
 import { selectSessionId } from '../../redux/store';
-import { cellReducer, clear, initialCellState, toggleEnd, toggleWeight, toggleWall, toggleStart } from './cell-reducer';
 
 const fullSize = css({ width: '100%', height: '100%' });
 const icon = css({ ...fullSize });
@@ -20,7 +20,7 @@ const getCellCss = (visited: boolean) =>
 type CellProps = { value: number; dispatch: Dispatch<any>; start: number; end: number };
 
 const Cell = ({ value, dispatch, start, end }: CellProps) => {
-  const initialState = initialCellState(value, start, end);
+  const initialState = initialCell(value, start, end);
   const reducer = cellReducer(initialState);
   const [{ isStart, isEnd, isWall, isWeight }, cellDispatch] = useReducer(reducer, initialState);
   const sessionId = useSelector(selectSessionId);
@@ -28,7 +28,7 @@ const Cell = ({ value, dispatch, start, end }: CellProps) => {
   const cellCss = getCellCss(isWall);
 
   useEffect(() => {
-    if (!free) cellDispatch(clear);
+    if (!free) cellDispatch(resetCell());
   }, [sessionId]);
 
   const dispatchStart = () => {

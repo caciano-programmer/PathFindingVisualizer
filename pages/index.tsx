@@ -29,8 +29,8 @@ export default function Home() {
   const [table, setTable] = useState({ touch: null as null | boolean, rows: ROWS, columns: COLUMNS });
 
   useEffect(() => {
+    const isMobile = ('ontouchstart' in window || navigator.maxTouchPoints > 0) && window.innerWidth < 1000;
     import('react-device-detect').then(device => {
-      const isMobile = ('ontouchstart' in window || navigator.maxTouchPoints > 0) && window.innerWidth < 1000;
       const touchDevice = device.isMobile || device.isIPad13 || isMobile;
       if (touchDevice) setTable({ touch: true, rows: MOBILE_GRID_LIMIT, columns: MOBILE_GRID_LIMIT });
       else setTable(state => ({ ...state, touch: false }));
