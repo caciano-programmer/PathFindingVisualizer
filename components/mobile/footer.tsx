@@ -3,7 +3,7 @@ import { AlgorithmKey, algorithms } from '../../algorithms/algorithms';
 import ResetSvg from '../../public/refresh.svg';
 import KettlebellSvg from '../../public/kettlebell.svg';
 import { useDrag } from 'react-dnd';
-import { DragType } from '../../config/config';
+import { Cell } from '../../config/config';
 import { resetState, selectAlgorithm, setAlgorithm } from '../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -18,7 +18,7 @@ type FooterProps = {
 };
 
 export const Footer = ({ styles }: FooterProps) => {
-  const dragWeight = useDrag({ type: DragType.WEIGHT, item: { type: DragType.WEIGHT } })[1];
+  const dragWeight = useDrag({ type: Cell.WEIGHT, item: { type: Cell.WEIGHT } })[1];
   const { key } = useSelector(selectAlgorithm);
   const dispatch = useDispatch();
 
@@ -32,8 +32,8 @@ export const Footer = ({ styles }: FooterProps) => {
         value={key}
         onChange={event => dispatch(setAlgorithm(event.target.value as AlgorithmKey))}
       >
-        {Object.keys(algorithms).map(algo => (
-          <option key={algo}>{algo}</option>
+        {Object.entries(algorithms).map(([currentKey, { name }]) => (
+          <option key={currentKey}>{name}</option>
         ))}
       </select>
       <button type="button" css={initialize}>

@@ -2,6 +2,8 @@ import type { AppProps } from 'next/app';
 import Head from 'next/head';
 import React from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
+import { Provider } from 'react-redux';
+import { store } from '../redux/store';
 
 import '../styles/globals.css';
 
@@ -11,7 +13,9 @@ export default function MyApp({ Component }: AppProps) {
       <HtmlHead />
       <React.StrictMode>
         <ErrorBoundary FallbackComponent={ErrorFallback}>
-          <Component />
+          <Provider store={store}>
+            <Component />
+          </Provider>
         </ErrorBoundary>
       </React.StrictMode>
     </>

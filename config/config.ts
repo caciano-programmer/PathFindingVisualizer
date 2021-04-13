@@ -1,13 +1,13 @@
 import { AlgorithmKey } from '../algorithms/algorithms';
 import { nanoid } from 'nanoid';
 
-export const ROWS = 13;
-export const COLUMNS = 30;
-export const MOBILE_GRID_LIMIT = 13;
-export const START = 185;
-export const END = 205;
-export const M_START = 1;
-export const M_END = 169;
+export const ROWS = 17;
+export const COLUMNS = 43;
+export const START = 44;
+export const END = 686;
+export const MOBILE_GRID_LIMIT = 15;
+export const M_START = 17;
+export const M_END = 209;
 
 export const DESKTOP = '@media(min-width: 1000px)';
 export const MOBILE = '@media(max-width: 999px)';
@@ -18,14 +18,33 @@ export enum Progress {
   COMPLETED = 'completed',
 }
 
-export type State = { status: Progress; algorithm: AlgorithmKey; sessionId: string };
+export type Dimensions = { rows: number; columns: number };
+export type State = {
+  status: Progress;
+  algorithm: AlgorithmKey;
+  dimensions: Dimensions;
+  maze: number[];
+  sessionId: string;
+};
 
-const initialID = nanoid();
-export const InitialState: State = { status: Progress.IDLE, algorithm: AlgorithmKey.aStar, sessionId: initialID };
+const sessionId = nanoid();
+export const InitialState: State = {
+  status: Progress.IDLE,
+  algorithm: AlgorithmKey.aStar,
+  dimensions: { rows: MOBILE_GRID_LIMIT, columns: MOBILE_GRID_LIMIT },
+  maze: [],
+  sessionId,
+};
 
-export enum DragType {
+export enum Cell {
+  CLEAR = 'clear',
   START = 'start',
   END = 'end',
+  WALL = 'wall',
   WEIGHT = 'weight',
+  PATH = 'path',
 }
-export type DragItem = { type: DragType };
+
+type DragType = Cell.START | Cell.END | Cell.WEIGHT;
+export type DragItem = { type: DragType; value?: number };
+export type CellIndexParam = number | [number, number];

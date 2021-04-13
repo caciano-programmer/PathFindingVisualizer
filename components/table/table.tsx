@@ -1,11 +1,12 @@
-import { useEffect } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+
+import React, { useCallback, useEffect, useState } from 'react';
 import { css, SerializedStyles } from '@emotion/react';
 import styled from '@emotion/styled';
-import { useReducer } from 'react';
 import { MemoizedCell } from './cell';
-import { InitialTableState, resetTable, tableReducer } from './table-reducer';
 import { useSelector } from 'react-redux';
-import { selectSessionId } from '../../redux/store';
+import { selectDimensions, selectMaze, selectSessionId } from '../../redux/store';
+import { Cell, CellIndexParam } from '../../config/config';
 
 const border = css({
   width: 'calc(100% - 2vw)',
@@ -15,39 +16,52 @@ const border = css({
   margin: '1vw',
   overflow: 'hidden',
 });
-const Grid = styled.div(
-  { display: 'grid', width: '100%', height: '100%' },
-  ({ rows, columns }: { rows: number; columns: number }) => ({
-    gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-    gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-  }),
+const Grid = React.memo(
+  styled.div(
+    { display: 'grid', width: '100%', height: '100%' },
+    ({ rows, columns }: { rows: number; columns: number }) => ({
+      gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+      gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+    }),
+  ),
 );
 
-type TableProp = {
-  columns: number;
-  rows: number;
-  start: number;
-  end: number;
-  styles: SerializedStyles;
-};
+const InitialTableState = (start: number, end: number, totalLength: number): Cell[] =>
+  [...Array(totalLength).keys()].map(val => (val === start ? Cell.START : val === end ? Cell.END : Cell.CLEAR));
 
-export default function Table({ columns, rows, start, end, styles }: TableProp) {
-  const initialState = InitialTableState(start, end);
-  const reducer = tableReducer(initialState);
-  const [{ startNode, endNode, walls, weights }, dispatch] = useReducer(reducer, initialState);
+type TableProp = { start: number; end: number; styles: SerializedStyles };
+
+export default function Table({ start, end, styles }: TableProp) {
+  const { rows, columns } = useSelector(selectDimensions);
+  const maze = useSelector(selectMaze);
+  const mazeSet = React.useMemo(() => new Set(maze), [maze]);
   const sessionId = useSelector(selectSessionId);
+  const initialState = InitialTableState(start, end, rows * columns);
+  const [cells, setCells] = useState(initialState);
 
-  useEffect(() => {
-    dispatch(resetTable());
-  }, [sessionId]);
+  useEffect(() => setCells([...initialState]), [sessionId]);
+  useEffect(() => setCells(initialState.map((el, index) => (mazeSet.has(index) ? Cell.WALL : el))), [mazeSet]);
+
+  const fn = useCallback((index: CellIndexParam, type: Cell) => setCells(prev => cellsUpdate(prev, index, type)), []);
 
   return (
     <div css={[border, styles]}>
       <Grid rows={rows} columns={columns}>
         {[...new Array(rows * columns)].map((_, index) => (
-          <MemoizedCell key={index} value={index + 1} dispatch={dispatch} start={start} end={end} />
+          <MemoizedCell key={index} value={index} type={cells[index]} setCell={fn} />
         ))}
       </Grid>
     </div>
   );
+}
+
+function cellsUpdate(array: Cell[], index: CellIndexParam, value: Cell) {
+  const copy = [...array];
+  if (Array.isArray(index)) {
+    copy[index[0]] = Cell.CLEAR;
+    copy[index[1]] = value;
+  } else {
+    copy[index] = value;
+  }
+  return copy;
 }

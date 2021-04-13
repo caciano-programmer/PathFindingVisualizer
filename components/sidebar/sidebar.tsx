@@ -8,20 +8,23 @@ import StartSvg from '../../public/start.svg';
 import DestinationSvg from '../../public/end.svg';
 import MazeSvg from '../../public/maze.svg';
 import { useDrag } from 'react-dnd';
-import { DragType } from '../../config/config';
+import { Cell } from '../../config/config';
+import { useDispatch } from 'react-redux';
+import { setMaze } from '../../redux/store';
 
 const container = css({
   display: 'flex',
   flexDirection: 'column',
   padding: '1vw',
 });
-const child = css({ flex: '1' });
-const icons = css({ width: '40px', height: '40px', cursor: 'pointer' });
+const child = css({ flex: '1', cursor: 'pointer' });
+const icons = css({ width: '40px', height: '40px' });
 
 type SidebarProps = { styles: SerializedStyles };
 
 export const Sidebar = ({ styles }: SidebarProps) => {
-  const dragWeight = useDrag({ type: DragType.WEIGHT, item: { type: DragType.WEIGHT } })[1];
+  const dragWeight = useDrag({ type: Cell.WEIGHT, item: { type: Cell.WEIGHT } })[1];
+  const dispatch = useDispatch();
   return (
     <div css={[container, styles]}>
       <div css={child}>
@@ -42,12 +45,10 @@ export const Sidebar = ({ styles }: SidebarProps) => {
           <KettlebellSvg css={icons} />
         </div>
       </div>
-      <div css={child}>
-        <button type="button">
-          Randomized Maze
-          <MazeSvg css={icons} />
-        </button>
-      </div>
+      <button css={child} type="button" onClick={() => dispatch(setMaze())}>
+        Randomized Maze
+        <MazeSvg css={icons} />
+      </button>
       <div css={child}>
         Colors of dividers
         <StartSvg />

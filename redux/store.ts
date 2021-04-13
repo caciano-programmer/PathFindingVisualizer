@@ -1,39 +1,28 @@
-import { configureStore, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { configureStore, createAction, createReducer } from '@reduxjs/toolkit';
 import { nanoid } from 'nanoid';
 import { AlgorithmKey, algorithms } from '../algorithms/algorithms';
-import { InitialState, Progress, State } from '../config/config';
+import { randomMaze } from '../algorithms/utils';
+import { Dimensions, InitialState, Progress, State } from '../config/config';
 
-const clearSlice = createSlice({
-  name: 'clear',
-  initialState: InitialState.sessionId,
-  reducers: { resetState: () => nanoid() },
-});
-const statusSlice = createSlice({
-  name: 'status',
-  initialState: InitialState.status,
-  reducers: {
-    setStatusIdle: () => Progress.IDLE,
-    setStatusProgress: () => Progress.IN_PROGESS,
-    setStatusComplete: () => Progress.COMPLETED,
-  },
-  extraReducers: builder => builder.addCase(clearSlice.actions.resetState, () => InitialState.status),
-});
-const algorithmSlice = createSlice({
-  name: 'algorithm',
-  initialState: InitialState.algorithm,
-  reducers: { setAlgorithm: (_, action: PayloadAction<AlgorithmKey>) => action.payload },
-  extraReducers: builder => builder.addCase(clearSlice.actions.resetState, () => InitialState.algorithm),
-});
+export const setStatus = createAction<Progress>('set-status');
+export const setAlgorithm = createAction<AlgorithmKey>('set-algorithm');
+export const setMaze = createAction('set-maze');
+export const setDimension = createAction<Dimensions>('set-dimension');
+export const resetState = createAction('clear');
 
-export const { setStatusIdle, setStatusComplete, setStatusProgress } = statusSlice.actions;
-export const { setAlgorithm } = algorithmSlice.actions;
-export const { resetState } = clearSlice.actions;
+const reducer = createReducer(InitialState, builder =>
+  builder
+    .addCase(setStatus, (state, { payload }) => ({ ...state, status: payload }))
+    .addCase(setAlgorithm, (state, { payload }) => ({ ...state, algorithm: payload }))
+    .addCase(setMaze, state => ({ ...state, maze: randomMaze(state.dimensions.rows, state.dimensions.columns) }))
+    .addCase(setDimension, (state, { payload }) => ({ ...state, dimensions: payload }))
+    .addCase(resetState, ({ dimensions }) => ({ ...InitialState, sessionId: nanoid(), maze: [], dimensions })),
+);
 
 export const selectStatus = ({ status }: State) => status;
-export const selectAlgorithm = (state: State) => ({ key: state.algorithm, algorithm: algorithms[state.algorithm] });
+export const selectAlgorithm = ({ algorithm }: State) => ({ key: algorithm, algorithm: algorithms[algorithm] });
 export const selectSessionId = ({ sessionId }: State) => sessionId;
+export const selectMaze = ({ maze }: State) => maze;
+export const selectDimensions = ({ dimensions }: State) => dimensions;
 
-export const store = configureStore({
-  reducer: { status: statusSlice.reducer, algorithm: algorithmSlice.reducer, sessionId: clearSlice.reducer },
-  preloadedState: InitialState,
-});
+export const store = configureStore({ reducer, preloadedState: InitialState });
