@@ -14,7 +14,10 @@ const reducer = createReducer(InitialState, builder =>
   builder
     .addCase(setStatus, (state, { payload }) => ({ ...state, status: payload }))
     .addCase(setAlgorithm, (state, { payload }) => ({ ...state, algorithm: payload }))
-    .addCase(setMaze, state => ({ ...state, maze: randomMaze(state.dimensions.rows, state.dimensions.columns) }))
+    .addCase(setMaze, state => {
+      const { rows, columns, start } = state.dimensions;
+      return { ...state, maze: randomMaze(rows, columns, start) };
+    })
     .addCase(setDimension, (state, { payload }) => ({ ...state, dimensions: payload }))
     .addCase(resetState, ({ dimensions }) => ({ ...InitialState, sessionId: nanoid(), maze: [], dimensions })),
 );

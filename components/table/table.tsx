@@ -29,10 +29,8 @@ const Grid = React.memo(
 const InitialTableState = (start: number, end: number, totalLength: number): Cell[] =>
   [...Array(totalLength).keys()].map(val => (val === start ? Cell.START : val === end ? Cell.END : Cell.CLEAR));
 
-type TableProp = { start: number; end: number; styles: SerializedStyles };
-
-export default function Table({ start, end, styles }: TableProp) {
-  const { rows, columns } = useSelector(selectDimensions);
+export default function Table({ styles }: { styles: SerializedStyles }) {
+  const { rows, columns, start, end } = useSelector(selectDimensions);
   const maze = useSelector(selectMaze);
   const mazeSet = React.useMemo(() => new Set(maze), [maze]);
   const sessionId = useSelector(selectSessionId);

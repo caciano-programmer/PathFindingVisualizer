@@ -6,8 +6,8 @@ export const COLUMNS = 43;
 export const START = 44;
 export const END = 686;
 export const MOBILE_GRID_LIMIT = 15;
-export const M_START = 17;
-export const M_END = 209;
+export const M_START = 16;
+export const M_END = 208;
 
 export const DESKTOP = '@media(min-width: 1000px)';
 export const MOBILE = '@media(max-width: 999px)';
@@ -18,7 +18,7 @@ export enum Progress {
   COMPLETED = 'completed',
 }
 
-export type Dimensions = { rows: number; columns: number };
+export type Dimensions = { rows: number; columns: number; start: number; end: number };
 export type State = {
   status: Progress;
   algorithm: AlgorithmKey;
@@ -31,7 +31,7 @@ const sessionId = nanoid();
 export const InitialState: State = {
   status: Progress.IDLE,
   algorithm: AlgorithmKey.aStar,
-  dimensions: { rows: MOBILE_GRID_LIMIT, columns: MOBILE_GRID_LIMIT },
+  dimensions: { rows: MOBILE_GRID_LIMIT, columns: MOBILE_GRID_LIMIT, start: M_START, end: M_END },
   maze: [],
   sessionId,
 };

@@ -35,7 +35,7 @@ export default function Home() {
     const isMobile = ('ontouchstart' in window || navigator.maxTouchPoints > 0) && window.innerWidth < 1000;
     import('react-device-detect').then(device => {
       const touchDevice = device.isMobile || device.isIPad13 || isMobile;
-      if (!touchDevice) dispatch(setDimension({ rows: ROWS, columns: COLUMNS }));
+      if (!touchDevice) dispatch(setDimension({ rows: ROWS, columns: COLUMNS, start: START, end: END }));
       setTouchDevice(touchDevice);
     });
   }, []);
@@ -46,12 +46,12 @@ export default function Home() {
       {touchDevice === false && (
         <DndProvider backend={HTML5Backend}>
           <Sidebar styles={sidebar} />
-          <DynamicTable styles={tableCss} start={START} end={END} />
+          <DynamicTable styles={tableCss} />
         </DndProvider>
       )}
       {touchDevice && (
         <DndProvider backend={TouchBackend}>
-          <DynamicTable styles={tableCss} start={M_START} end={M_END} />
+          <DynamicTable styles={tableCss} />
           <Footer styles={footer} />
         </DndProvider>
       )}

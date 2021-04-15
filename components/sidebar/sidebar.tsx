@@ -19,12 +19,14 @@ const container = css({
 });
 const child = css({ flex: '1', cursor: 'pointer' });
 const icons = css({ width: '40px', height: '40px' });
+const grabItem = css({ cursor: 'grab' });
 
 type SidebarProps = { styles: SerializedStyles };
 
 export const Sidebar = ({ styles }: SidebarProps) => {
   const dragWeight = useDrag({ type: Cell.WEIGHT, item: { type: Cell.WEIGHT } })[1];
   const dispatch = useDispatch();
+
   return (
     <div css={[container, styles]}>
       <div css={child}>
@@ -41,7 +43,7 @@ export const Sidebar = ({ styles }: SidebarProps) => {
         <DarkThemeSvg />
       </div>
       <div css={child}>
-        <div ref={dragWeight}>
+        <div ref={dragWeight} css={grabItem}>
           <KettlebellSvg css={icons} />
         </div>
       </div>

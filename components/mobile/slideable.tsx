@@ -8,6 +8,8 @@ import DarkThemeSvg from '../../public/dark.svg';
 import CodeSvg from '../../public/code.svg';
 import StartSvg from '../../public/start.svg';
 import DestinationSvg from '../../public/end.svg';
+import { useDispatch } from 'react-redux';
+import { setMaze } from '../../redux/store';
 
 const container = (open: boolean) =>
   css({
@@ -27,7 +29,9 @@ type SlideableProps = { open: boolean; close: () => void };
 
 export const Slideable = ({ open, close }: SlideableProps) => {
   const handlers = useSwipeable({ onSwipedRight: close });
+  const dispatch = useDispatch();
   const containerCss = container(open);
+
   return (
     <div css={containerCss} {...handlers}>
       <CloseSvg onClick={close} css={icon} />
@@ -44,7 +48,7 @@ export const Slideable = ({ open, close }: SlideableProps) => {
         <LightThemeSvg css={icon} />
         <DarkThemeSvg css={icon} />
       </div>
-      <div>
+      <div onClick={() => dispatch(setMaze())}>
         Generate Randomized Maze
         <MazeSvg css={icon} />
       </div>

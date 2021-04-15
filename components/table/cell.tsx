@@ -10,6 +10,7 @@ import { Cell as CellType, CellIndexParam, DragItem } from '../../config/config'
 
 const fullSize = css({ width: '100%', height: '100%' });
 const icon = css({ ...fullSize });
+const grabItem = (isDragItem: boolean) => css({ cursor: isDragItem ? 'grab' : 'default' });
 const getCellCss = (visited: boolean) =>
   css({ borderRight: '1px solid black', borderTop: '1px solid black', backgroundColor: visited ? 'blue' : 'white' });
 
@@ -17,6 +18,7 @@ type CellProps = { value: number; type: CellType; setCell: (index: CellIndexPara
 
 const Cell = ({ value, type, setCell }: CellProps) => {
   const cellCss = getCellCss(type === CellType.WALL);
+  const grabCss = grabItem([CellType.START, CellType.END, CellType.WEIGHT].includes(type));
 
   const dragStart = useDrag({ type: CellType.START, item: { type: CellType.START, value } })[1];
   const dragEnd = useDrag({ type: CellType.END, item: { type: CellType.END, value } })[1];
@@ -40,7 +42,7 @@ const Cell = ({ value, type, setCell }: CellProps) => {
   };
 
   return (
-    <div css={cellCss} ref={drop} onMouseEnter={visit} onClick={clickCell}>
+    <div css={[cellCss, grabCss]} ref={drop} onMouseEnter={visit} onClick={clickCell}>
       {type === CellType.START && (
         <div ref={dragStart} css={fullSize}>
           <Start css={icon} preserveAspectRatio="none" />
@@ -52,7 +54,7 @@ const Cell = ({ value, type, setCell }: CellProps) => {
         </div>
       )}
       {type === CellType.WEIGHT && (
-        <div css={fullSize} ref={dragWeight}>
+        <div css={[fullSize]} ref={dragWeight}>
           <KettlebellSvg css={icon} preserveAspectRatio="none" />
         </div>
       )}
