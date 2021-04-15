@@ -7,10 +7,9 @@ import CodeSvg from '../../public/code.svg';
 import StartSvg from '../../public/start.svg';
 import DestinationSvg from '../../public/end.svg';
 import MazeSvg from '../../public/maze.svg';
-import { useDrag } from 'react-dnd';
+import { setMaze } from '../../redux/store';
 import { Cell } from '../../config/config';
 import { useDispatch } from 'react-redux';
-import { setMaze } from '../../redux/store';
 
 const container = css({
   display: 'flex',
@@ -24,8 +23,11 @@ const grabItem = css({ cursor: 'grab' });
 type SidebarProps = { styles: SerializedStyles };
 
 export const Sidebar = ({ styles }: SidebarProps) => {
-  const dragWeight = useDrag({ type: Cell.WEIGHT, item: { type: Cell.WEIGHT } })[1];
   const dispatch = useDispatch();
+
+  const dragStart = (event: React.DragEvent<HTMLDivElement>) => {
+    event.dataTransfer.setData('text/plain', JSON.stringify({ movedType: Cell.WEIGHT }));
+  };
 
   return (
     <div css={[container, styles]}>
@@ -43,7 +45,7 @@ export const Sidebar = ({ styles }: SidebarProps) => {
         <DarkThemeSvg />
       </div>
       <div css={child}>
-        <div ref={dragWeight} css={grabItem}>
+        <div css={grabItem} draggable={true} onDragStart={dragStart}>
           <KettlebellSvg css={icons} />
         </div>
       </div>

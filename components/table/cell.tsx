@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React from 'react';
-import { css } from '@emotion/react';
+import { css, SerializedStyles } from '@emotion/react';
 import { useDrag, useDrop } from 'react-dnd';
 import Start from '../../public/start.svg';
 import End from '../../public/end.svg';
@@ -14,9 +14,14 @@ const grabItem = (isDragItem: boolean) => css({ cursor: isDragItem ? 'grab' : 'd
 const getCellCss = (visited: boolean) =>
   css({ borderRight: '1px solid black', borderTop: '1px solid black', backgroundColor: visited ? 'blue' : 'white' });
 
-type CellProps = { value: number; type: CellType; setCell: (index: CellIndexParam, type: CellType) => void };
+type CellProps = {
+  value: number;
+  type: CellType;
+  setCell: (index: CellIndexParam, type: CellType) => void;
+  style?: SerializedStyles;
+};
 
-const Cell = ({ value, type, setCell }: CellProps) => {
+const Cell = ({ value, type, setCell, style }: CellProps) => {
   const cellCss = getCellCss(type === CellType.WALL);
   const grabCss = grabItem([CellType.START, CellType.END, CellType.WEIGHT].includes(type));
 
@@ -40,21 +45,40 @@ const Cell = ({ value, type, setCell }: CellProps) => {
       else if (type === CellType.WALL) setCell(value, CellType.CLEAR);
     }
   };
+  const onDragStart = (event: React.DragEvent<HTMLDivElement>, movedType: CellType) => {
+    const data = { movedVal: value, movedType };
+    event.dataTransfer.setData('text/plain', JSON.stringify(data));
+  };
+  const allowDrop = (event: React.DragEvent<HTMLDivElement>) => event.preventDefault();
+  const dropContainer = (event: React.DragEvent<HTMLDivElement>) => {
+    if (type !== CellType.CLEAR) return;
+    event.preventDefault();
+    const { movedVal, movedType } = JSON.parse(event.dataTransfer.getData('text/plain'));
+    if (movedVal) setCell([movedVal, value], movedType);
+    else setCell(value, movedType);
+  };
 
   return (
-    <div css={[cellCss, grabCss]} ref={drop} onMouseEnter={visit} onClick={clickCell}>
+    <div
+      css={[cellCss, grabCss, style]}
+      ref={drop}
+      onMouseEnter={visit}
+      onClick={clickCell}
+      onDrop={dropContainer}
+      onDragOver={allowDrop}
+    >
       {type === CellType.START && (
-        <div ref={dragStart} css={fullSize}>
+        <div ref={dragStart} css={fullSize} draggable={true} onDragStart={ev => onDragStart(ev, CellType.START)}>
           <Start css={icon} preserveAspectRatio="none" />
         </div>
       )}
       {type === CellType.END && (
-        <div ref={dragEnd} css={fullSize}>
+        <div ref={dragEnd} css={fullSize} draggable={true} onDragStart={ev => onDragStart(ev, CellType.END)}>
           <End css={icon} preserveAspectRatio="none" />
         </div>
       )}
       {type === CellType.WEIGHT && (
-        <div css={[fullSize]} ref={dragWeight}>
+        <div css={[fullSize]} ref={dragWeight} draggable={true} onDragStart={ev => onDragStart(ev, CellType.WEIGHT)}>
           <KettlebellSvg css={icon} preserveAspectRatio="none" />
         </div>
       )}

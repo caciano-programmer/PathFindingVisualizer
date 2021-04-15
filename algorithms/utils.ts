@@ -3,7 +3,7 @@ export type Weights = Map<number, { weight: number }>;
 export type Walls = Map<number, number> | Set<number>;
 
 // This maze generation function uses a modified version of recursive division algorithm
-export const randomMaze = (rows: number, cols: number, start: number, end: number): number[] => {
+export const randomMaze = (rows: number, cols: number): number[] => {
   const walls = new Set<number>();
   const openings = new Set<number>();
   const horizontalEdges: number[] = [Math.floor(cols / 2)];
@@ -18,7 +18,7 @@ export const randomMaze = (rows: number, cols: number, start: number, end: numbe
     (function fn(current = beginning, count = 1) {
       walls.add(current);
       const next = current + jump;
-      if (walls.has(next) || next === start || next === end) {
+      if (walls.has(next)) {
         const randomNum = random(count);
         const randomCell = beginning + randomNum * jump;
         walls.delete(randomCell);
