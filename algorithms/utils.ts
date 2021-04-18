@@ -1,6 +1,6 @@
 export type AdjacencyList = Map<number, number[]>;
-export type Weights = Map<number, { weight: number }>;
-export type Walls = Map<number, number> | Set<number>;
+export type Weights = Set<number>;
+type Walls = Set<number>;
 
 // This maze generation function uses a modified version of recursive division algorithm
 export const randomMaze = (rows: number, cols: number): number[] => {
@@ -58,18 +58,12 @@ const getAdjacentNodes = (index: number, colLength: number, nodeTotal: number, w
 };
 
 // build an adjacency list representation of a row x column sized graph
-export const buildAdjacencyList = (rows: number, columns: number, walls: Walls = new Map()): AdjacencyList => {
+export const buildAdjacencyList = (rows: number, columns: number, walls: Walls = new Set()): AdjacencyList => {
   const nodeTotal = rows * columns;
   const list: AdjacencyList = new Map();
-  for (let i = 1; i <= nodeTotal; i++) if (!walls.has(i)) list.set(i, getAdjacentNodes(i, columns, nodeTotal, walls));
+  for (let i = 0; i < nodeTotal; i++) if (!walls.has(i)) list.set(i, getAdjacentNodes(i, columns, nodeTotal, walls));
   return list;
 };
-
-export function setWeights(weight: number, nodes: number[]): Weights {
-  const weights: Weights = new Map();
-  nodes.forEach(node => weights.set(node, { weight }));
-  return weights;
-}
 
 // add all border cells as walls
 function initializeBorders(rows: number, cols: number, walls: Set<number>) {

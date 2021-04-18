@@ -11,8 +11,10 @@ import { Cell as CellType, CellIndexParam, DragItem } from '../../config/config'
 const fullSize = css({ width: '100%', height: '100%' });
 const icon = css({ ...fullSize });
 const grabItem = (isDragItem: boolean) => css({ cursor: isDragItem ? 'grab' : 'default' });
-const getCellCss = (visited: boolean) =>
-  css({ borderRight: '1px solid black', borderTop: '1px solid black', backgroundColor: visited ? 'blue' : 'white' });
+const getCellCss = (type: CellType) => {
+  const backgroundColor = type === CellType.WALL ? 'blue' : type === CellType.PATH ? 'yellow' : 'white';
+  return css({ borderRight: '1px solid black', borderTop: '1px solid black', backgroundColor });
+};
 
 type CellProps = {
   value: number;
@@ -22,7 +24,7 @@ type CellProps = {
 };
 
 const Cell = ({ value, type, setCell, style }: CellProps) => {
-  const cellCss = getCellCss(type === CellType.WALL);
+  const cellCss = getCellCss(type);
   const grabCss = grabItem([CellType.START, CellType.END, CellType.WEIGHT].includes(type));
 
   const dragStart = useDrag({ type: CellType.START, item: { type: CellType.START, value } })[1];

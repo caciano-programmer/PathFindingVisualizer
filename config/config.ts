@@ -46,8 +46,11 @@ export enum Cell {
   WALL = 'wall',
   WEIGHT = 'weight',
   PATH = 'path',
+  SEARCHED = 'searched',
 }
 
 type DragType = Cell.START | Cell.END | Cell.WEIGHT;
 export type DragItem = { type: DragType; value?: number };
 export type CellIndexParam = number | [number, number];
+
+export const Weight_Cost = 5;

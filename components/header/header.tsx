@@ -3,10 +3,10 @@ import { useState } from 'react';
 import ResetSvg from '../../public/refresh.svg';
 import MenuSvg from '../../public/menu.svg';
 import { AlgorithmKey, algorithms } from '../../algorithms/algorithms';
-import { MOBILE, DESKTOP } from '../../config/config';
+import { MOBILE, DESKTOP, Progress } from '../../config/config';
 import { Slideable } from '../mobile/slideable';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetState, selectAlgorithm, setAlgorithm } from '../../redux/store';
+import { resetState, selectAlgorithm, setAlgorithm, setStatus } from '../../redux/store';
 
 const container = css({ display: 'flex', flexDirection: 'row', alignItems: 'center' });
 const desktop = css({ [MOBILE]: { display: 'none' } });
@@ -22,7 +22,7 @@ type HeaderProps = {
 
 export const Header = ({ styles }: HeaderProps) => {
   const [options, showOptions] = useState(false);
-  const { key } = useSelector(selectAlgorithm);
+  const key = useSelector(selectAlgorithm);
   const dispatch = useDispatch();
 
   return (
@@ -40,7 +40,7 @@ export const Header = ({ styles }: HeaderProps) => {
             </option>
           ))}
         </select>
-        <button type="button" css={[initialize, desktop]}>
+        <button type="button" css={[initialize, desktop]} onClick={() => dispatch(setStatus(Progress.IN_PROGESS))}>
           Visualize!
         </button>
         <div onClick={() => dispatch(resetState())}>

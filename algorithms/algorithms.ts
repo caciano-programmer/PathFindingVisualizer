@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
+import { Weight_Cost } from '../config/config';
 import { AdjacencyList, Weights } from './utils';
 
 type SinglePath = { length: number; path: number[] };
-export type Path = Map<number, SinglePath> | SinglePath;
+export type Path = Map<number, SinglePath>;
 export type Explored = { paths: Path; visited: number[] };
-type AstarNode = { key: number; movement: number; value: number; path: number[] };
+type AstarNode = { key: number; movement: number; value: number; cost: number; path: number[] };
 
 export const algorithms = {
   aStar: { name: 'A*' as const, fn: aStar },
@@ -22,7 +23,7 @@ export enum AlgorithmKey {
   dfs = 'dfs',
 }
 
-function dijkstra(list: AdjacencyList, start: number, weights: Weights = new Map()): Explored {
+function dijkstra(list: AdjacencyList, start: number, weights: Weights = new Set()): Explored {
   const paths: Path = new Map();
   for (const key of list.keys()) paths.set(key, { length: Infinity, path: [] });
   paths.set(start, { length: 0, path: [start] });
@@ -34,7 +35,7 @@ function dijkstra(list: AdjacencyList, start: number, weights: Weights = new Map
     const currentPath = paths.get(current)!;
     for (const neighbor of neighbors) {
       const neighborPath = paths.get(neighbor)!;
-      const weight = currentPath.length + (weights.get(neighbor)?.weight ?? 1);
+      const weight = currentPath.length + (weights.has(neighbor) ? Weight_Cost : 1);
       if (weight < neighborPath.length) paths.set(neighbor, { length: weight, path: [...currentPath.path, neighbor] });
     }
     for (const neighbor of neighbors) if (!visited.includes(neighbor)) fn(neighbor);
@@ -44,28 +45,32 @@ function dijkstra(list: AdjacencyList, start: number, weights: Weights = new Map
   return { paths: fn(), visited };
 }
 
-function aStar(list: AdjacencyList, start: number, dest: number, row: number, weights?: Weights): Explored {
-  const startNode = { key: start, movement: 0, value: heuristic(start, dest, row), path: [start] };
+function aStar(list: AdjacencyList, start: number, dest: number, row: number, col: number, weights: Weights): Explored {
+  const startNode: AstarNode = {
+    key: start,
+    movement: 0,
+    value: heuristic(start, dest, col),
+    cost: heuristic(start, dest, col),
+    path: [start],
+  };
   const open = new AstarPriorityQueue(startNode);
   const closed: Map<number, AstarNode> = new Map();
 
-  const fn = (): Path => {
+  const fn = (): SinglePath => {
     const node = open.deQueue()!;
     closed.set(node.key, node);
     if (node.key === dest) return { length: node.movement, path: node.path };
-    for (const adjacent of list.get(node.key)!) {
-      const weight = weights?.get(adjacent)?.weight ?? 1;
-      const value = heuristic(adjacent, dest, row) + weight;
-      const notInLists = !open.get(adjacent) && !closed.get(adjacent);
-      const betterThanClosed = closed.get(adjacent) && value < closed.get(adjacent)!.value;
-      const betterThanOpen = open.get(adjacent) && value < open.get(adjacent)!.value;
-      if (notInLists || betterThanClosed || betterThanOpen)
-        open.set({ key: adjacent, movement: node.movement + weight, value, path: [...node.path, adjacent] });
+    for (const adjacent of list.get(node.key)!.filter(val => !closed.has(val))) {
+      const value = heuristic(adjacent, dest, col);
+      const movement = node.movement + (weights?.has(adjacent) ? Weight_Cost : 1);
+      const cost = movement + value;
+      const betterInOpen = open.has(adjacent) && open.get(adjacent)!.cost <= cost;
+      if (!betterInOpen) open.set({ key: adjacent, movement, value, cost, path: [...node.path, adjacent] });
     }
     return fn();
   };
 
-  return { paths: fn(), visited: open.explored() };
+  return { paths: new Map([[dest, fn()]]), visited: open.explored() };
 }
 
 function bellmanFord(list: AdjacencyList, start: number, weights?: Weights): Explored {
@@ -81,7 +86,7 @@ function bellmanFord(list: AdjacencyList, start: number, weights?: Weights): Exp
       visitedOrder.add(current);
       for (const edge of list.get(current)!) {
         open.push(edge);
-        const cost = paths.get(current)!.length + (weights?.get(edge)?.weight ?? 1);
+        const cost = paths.get(current)!.length + (weights?.has(edge) ? Weight_Cost : 1);
         if (cost < paths.get(edge)!.length) {
           updatesMade = true;
           paths.set(edge, { length: cost, path: [...paths.get(current)!.path, edge] });
@@ -110,7 +115,7 @@ function depthFirstSearch(list: AdjacencyList, start: number, destination: numbe
   };
   fn(start);
 
-  return { paths: paths.get(destination)!, visited: [...visited] };
+  return { paths, visited: [...visited] };
 }
 
 function breadthFirstSearch(list: AdjacencyList, start: number, destination: number): Explored {
@@ -131,20 +136,22 @@ function breadthFirstSearch(list: AdjacencyList, start: number, destination: num
     return fn(children);
   };
 
-  return { paths: fn(), visited: [...visited] };
+  return { paths: new Map([[destination, fn()]]), visited: [...visited] };
 }
 
 //=========================================Helper Functions=========================================
 
 /*
     A* algorithm can use different types of heuristics, this is an implementation of manhattan-distance,
-    a heuristic that gaurantees shortest path and works when you have travel in 4 directions(up,left,down,right)
+    a heuristic that gaurantees shortest path and works when you have travel in 4 directions(up,left,down,right),
  */
-function heuristic(current: number, dest: number, row: number): number {
-  const yDiff = Math.abs(Math.ceil(current / row) - Math.ceil(dest / row));
-  const xCurrent = current % row === 0 ? row : current % row;
-  const xDestination = dest % row === 0 ? row : dest % row;
-  const xDiff = Math.abs(xCurrent - xDestination);
+function heuristic(current: number, dest: number, column: number): number {
+  const yCurrent = Math.floor(current / column);
+  const yDestination = Math.floor(dest / column);
+  const yDiff = Math.abs(yDestination - yCurrent);
+  const xCurrent = current % column;
+  const xDestination = dest % column;
+  const xDiff = Math.abs(xDestination - xCurrent);
   return xDiff + yDiff;
 }
 
@@ -161,27 +168,30 @@ class AstarPriorityQueue {
   }
   deQueue(): AstarNode | undefined {
     const removed = this.Queue.shift();
-    if (removed) this.Explored.add(removed.key);
+    if (removed) this.Dictionary.delete(removed.key);
     return removed;
+  }
+  has(key: number): boolean {
+    return this.Dictionary.has(key);
   }
   get(key: number): AstarNode | undefined {
     return this.Dictionary.get(key);
   }
   explored(): number[] {
-    return [...this.Explored, ...this.Queue.map(node => node.key)];
+    return [...this.Explored];
   }
   set(item: AstarNode): void {
     this.Dictionary.set(item.key, item);
     this.Explored.add(item.key);
     if (this.Queue.length === 0) this.Queue.push(item);
     else {
-      let middle = this.Queue.length === 0 ? 0 : Math.floor((this.Queue.length - 1) / 2);
+      let middle = Math.floor((this.Queue.length - 1) / 2);
       for (let start = 0, end = this.Queue.length - 1; end >= start; middle = Math.floor((end - start) / 2) + start) {
-        if (middle === 0 || item.value === this.Queue[middle].value) break;
-        else if (item.value < this.Queue[middle].value) end = middle - 1;
+        if (middle === 0 || item.cost === this.Queue[middle].cost) break;
+        else if (item.cost < this.Queue[middle].cost) end = middle - 1;
         else start = middle + 1;
       }
-      if (this.Queue[middle].value < item.value) middle++;
+      if (this.Queue[middle].cost < item.cost) middle++;
       this.Queue.splice(middle, 0, item);
     }
   }

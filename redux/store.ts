@@ -1,6 +1,6 @@
 import { configureStore, createAction, createReducer } from '@reduxjs/toolkit';
 import { nanoid } from 'nanoid';
-import { AlgorithmKey, algorithms } from '../algorithms/algorithms';
+import { AlgorithmKey } from '../algorithms/algorithms';
 import { randomMaze } from '../algorithms/utils';
 import { Dimensions, InitialState, Progress, State } from '../config/config';
 
@@ -23,7 +23,7 @@ const reducer = createReducer(InitialState, builder =>
 );
 
 export const selectStatus = ({ status }: State) => status;
-export const selectAlgorithm = ({ algorithm }: State) => ({ key: algorithm, algorithm: algorithms[algorithm] });
+export const selectAlgorithm = ({ algorithm }: State) => algorithm;
 export const selectSessionId = ({ sessionId }: State) => sessionId;
 export const selectMaze = ({ maze }: State) => maze;
 export const selectDimensions = ({ dimensions }: State) => dimensions;
