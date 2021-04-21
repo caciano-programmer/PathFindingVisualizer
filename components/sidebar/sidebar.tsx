@@ -8,7 +8,7 @@ import StartSvg from '../../public/start.svg';
 import DestinationSvg from '../../public/end.svg';
 import MazeSvg from '../../public/maze.svg';
 import { setMaze } from '../../redux/store';
-import { Cell } from '../../config/config';
+import { Cell } from '../table/table-utils';
 import { useDispatch } from 'react-redux';
 
 const container = css({

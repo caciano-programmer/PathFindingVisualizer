@@ -6,15 +6,18 @@ import { useDrag, useDrop } from 'react-dnd';
 import Start from '../../public/start.svg';
 import End from '../../public/end.svg';
 import KettlebellSvg from '../../public/kettlebell.svg';
-import { Cell as CellType, CellIndexParam, DragItem } from '../../config/config';
+import { Cell as CellType, cellColor, CellIndexParam, DragItem } from './table-utils';
 
 const fullSize = css({ width: '100%', height: '100%' });
 const icon = css({ ...fullSize });
 const grabItem = (isDragItem: boolean) => css({ cursor: isDragItem ? 'grab' : 'default' });
-const getCellCss = (type: CellType) => {
-  const backgroundColor = type === CellType.WALL ? 'blue' : type === CellType.PATH ? 'yellow' : 'white';
-  return css({ borderRight: '1px solid black', borderTop: '1px solid black', backgroundColor });
-};
+const getCellCss = (type: CellType, animate: boolean) =>
+  css({
+    borderRight: '1px solid black',
+    borderTop: '1px solid black',
+    backgroundColor: `${cellColor(type)}`,
+    transition: animate ? `background-color 1s` : '',
+  });
 
 type CellProps = {
   value: number;
@@ -24,7 +27,7 @@ type CellProps = {
 };
 
 const Cell = ({ value, type, setCell, style }: CellProps) => {
-  const cellCss = getCellCss(type);
+  const cellCss = getCellCss(type, type !== CellType.CLEAR);
   const grabCss = grabItem([CellType.START, CellType.END, CellType.WEIGHT].includes(type));
 
   const dragStart = useDrag({ type: CellType.START, item: { type: CellType.START, value } })[1];

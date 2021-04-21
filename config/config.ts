@@ -3,8 +3,8 @@ import { nanoid } from 'nanoid';
 
 export const ROWS = 17;
 export const COLUMNS = 43;
-export const START = 44;
-export const END = 686;
+export const START = 348;
+export const END = 381;
 export const MOBILE_ROW = 13;
 export const MOBILE_COL = 15;
 export const M_START = 16;
@@ -19,7 +19,7 @@ export enum Progress {
   COMPLETED = 'completed',
 }
 
-export type Dimensions = { start: number; end: number; rows: number; columns: number };
+export type Dimensions = { rows: number; columns: number };
 export type State = {
   status: Progress;
   algorithm: AlgorithmKey;
@@ -29,8 +29,8 @@ export type State = {
 };
 
 const sessionId = nanoid();
-export const MobileDimension: Dimensions = { start: M_START, end: M_END, rows: MOBILE_ROW, columns: MOBILE_COL };
-export const DesktopDimension: Dimensions = { start: START, end: END, rows: ROWS, columns: COLUMNS };
+export const MobileDimension: Dimensions = { rows: MOBILE_ROW, columns: MOBILE_COL };
+export const DesktopDimension: Dimensions = { rows: ROWS, columns: COLUMNS };
 export const InitialState: State = {
   status: Progress.IDLE,
   algorithm: AlgorithmKey.aStar,
@@ -38,19 +38,3 @@ export const InitialState: State = {
   maze: [],
   sessionId,
 };
-
-export enum Cell {
-  CLEAR = 'clear',
-  START = 'start',
-  END = 'end',
-  WALL = 'wall',
-  WEIGHT = 'weight',
-  PATH = 'path',
-  SEARCHED = 'searched',
-}
-
-type DragType = Cell.START | Cell.END | Cell.WEIGHT;
-export type DragItem = { type: DragType; value?: number };
-export type CellIndexParam = number | [number, number];
-
-export const Weight_Cost = 5;

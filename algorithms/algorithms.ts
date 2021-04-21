@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-import { Weight_Cost } from '../config/config';
 import { AdjacencyList, Weights } from './utils';
 
 type SinglePath = { length: number; path: number[] };
 export type Path = Map<number, SinglePath>;
 export type Explored = { paths: Path; visited: number[] };
 type AstarNode = { key: number; movement: number; value: number; cost: number; path: number[] };
+
+const Weight_Cost = 5;
 
 export const algorithms = {
   aStar: { name: 'A*' as const, fn: aStar },
@@ -45,7 +46,7 @@ function dijkstra(list: AdjacencyList, start: number, weights: Weights = new Set
   return { paths: fn(), visited };
 }
 
-function aStar(list: AdjacencyList, start: number, dest: number, row: number, col: number, weights: Weights): Explored {
+function aStar(list: AdjacencyList, start: number, dest: number, col: number, weights: Weights): Explored {
   const startNode: AstarNode = {
     key: start,
     movement: 0,
@@ -101,20 +102,21 @@ function bellmanFord(list: AdjacencyList, start: number, weights?: Weights): Exp
 
 function depthFirstSearch(list: AdjacencyList, start: number, destination: number): Explored {
   const paths: Path = new Map();
-  const visited: Set<number> = new Set([start]);
-  paths.set(start, { length: 0, path: [start] });
+  const visited = new Set([start]);
 
-  const fn = (current: number): void => {
-    const currentPath = paths.get(current)!.path;
-    if (current === destination) return;
-    for (const neighbor of list.get(current)!.filter(node => !visited.has(node))) {
-      paths.set(neighbor, { length: currentPath.length, path: [...currentPath, neighbor] });
-      visited.add(neighbor);
-      fn(neighbor);
+  const path = (function fn(current: number, path = [start]): number[] {
+    if (current === destination) return path;
+    const siblings = list.get(current)?.filter(node => !visited.has(node));
+    if (siblings && siblings?.length > 0) {
+      const next = siblings[0];
+      visited.add(next);
+      return fn(next, [...path, next]);
     }
-  };
-  fn(start);
+    path.pop();
+    return fn(path[path.length - 1], path);
+  })(start);
 
+  paths.set(destination, { path, length: path.length });
   return { paths, visited: [...visited] };
 }
 
@@ -197,7 +199,7 @@ class AstarPriorityQueue {
   }
 }
 
-// Extends javascript Set to be able to pop unique elements from a separate list, while not affecting current set
+// A set but with ability to constantly remove first item with affecting original set
 class ListSet<Type> extends Set {
   private list: Type[] = [];
   constructor(items?: Type | Type[]) {

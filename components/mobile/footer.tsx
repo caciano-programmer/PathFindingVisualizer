@@ -3,9 +3,10 @@ import { AlgorithmKey, algorithms } from '../../algorithms/algorithms';
 import ResetSvg from '../../public/refresh.svg';
 import KettlebellSvg from '../../public/kettlebell.svg';
 import { useDrag } from 'react-dnd';
-import { Cell, Progress } from '../../config/config';
+import { Progress } from '../../config/config';
 import { resetState, selectAlgorithm, setAlgorithm, setStatus } from '../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
+import { Cell } from '../table/table-utils';
 
 const container = css({ display: 'flex' });
 const iconHolder = css({ flex: 1, minWidth: 0 });

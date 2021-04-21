@@ -1,3 +1,5 @@
+import { END, START } from '../config/config';
+
 export type AdjacencyList = Map<number, number[]>;
 export type Weights = Set<number>;
 type Walls = Set<number>;
@@ -81,7 +83,8 @@ function isFree(beginning: number, jump: number, walls: Set<number>, openings: S
   const perpendicular = Math.abs(jump) > 1 ? 1 : cols;
   let count = 0;
   for (let i = beginning; !walls.has(i); i += jump, count++) {
-    if (walls.has(i + perpendicular) || walls.has(i - perpendicular) || openings.has(i)) return false;
+    const isStartPoint = i === START || i === END;
+    if (walls.has(i + perpendicular) || walls.has(i - perpendicular) || openings.has(i) || isStartPoint) return false;
   }
   return count > 2;
 }
