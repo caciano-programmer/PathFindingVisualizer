@@ -5,7 +5,7 @@ import { AdjacencyList, Weights } from './utils';
 type SinglePath = { length: number; path: number[] };
 export type Path = Map<number, SinglePath>;
 export type Explored = { paths: Path; visited: number[] };
-type dijkstrasNode = { key: number; cost: number };
+type DijkstrasNode = { key: number; cost: number };
 type AstarNode = { key: number; movement: number; value: number; cost: number; path: number[] };
 
 const Weight_Cost = 5;
@@ -30,8 +30,8 @@ function dijkstra(list: AdjacencyList, start: number, weights: Weights = new Set
   const visited = new Set<number>();
   for (const key of list.keys())
     key === start ? paths.set(start, { length: 0, path: [start] }) : paths.set(key, { length: Infinity, path: [] });
-  const initialUnvisited: dijkstrasNode[] = [...paths].map(([key, { length }]) => ({ key, cost: length }));
-  const unvisited = new PriorityQueue<dijkstrasNode>(initialUnvisited);
+  const initialUnvisited: DijkstrasNode[] = [...paths].map(([key, { length }]) => ({ key, cost: length }));
+  const unvisited = new PriorityQueue<DijkstrasNode>(initialUnvisited);
 
   const fn = (current = start): Path => {
     visited.add(current);
@@ -176,7 +176,7 @@ function heuristic(current: number, dest: number, column: number): number {
 class PriorityQueue<T extends { key: number; cost: number }> {
   private Dictionary: Map<number, T> = new Map();
   private Queue: T[] = [];
-  private Explored: Set<number> = new Set();
+  private Searched: Set<number> = new Set();
 
   constructor(initial: T | T[]) {
     if (!Array.isArray(initial)) this.set(initial);
@@ -198,11 +198,11 @@ class PriorityQueue<T extends { key: number; cost: number }> {
     return this.Dictionary.get(key);
   }
   explored(): number[] {
-    return [...this.Explored];
+    return [...this.Searched];
   }
   set(item: T): void {
     this.Dictionary.set(item.key, item);
-    this.Explored.add(item.key);
+    this.Searched.add(item.key);
     if (this.Queue.length === 0) this.Queue.push(item);
     else {
       let middle = Math.floor((this.Queue.length - 1) / 2);

@@ -25,12 +25,17 @@ const container = (open: boolean) =>
   });
 const icon = css({ cursor: 'pointer', width: '60px', height: '60px' });
 
-type SlideableProps = { open: boolean; close: () => void };
+type SlideableProps = { open: boolean; close: () => void; setCode: () => void };
 
-export const Slideable = ({ open, close }: SlideableProps) => {
+export const Slideable = ({ open, close, setCode }: SlideableProps) => {
   const handlers = useSwipeable({ onSwipedRight: close });
   const dispatch = useDispatch();
   const containerCss = container(open);
+
+  const fnWithClose = (fn: () => void) => {
+    close();
+    fn();
+  };
 
   return (
     <div css={containerCss} {...handlers}>
@@ -39,7 +44,7 @@ export const Slideable = ({ open, close }: SlideableProps) => {
         Tutorial
         <TutorialSvg css={icon} />
       </div>
-      <div>
+      <div onClick={() => fnWithClose(setCode)}>
         Algorithm Code
         <CodeSvg css={icon} />
       </div>
@@ -48,7 +53,7 @@ export const Slideable = ({ open, close }: SlideableProps) => {
         <LightThemeSvg css={icon} />
         <DarkThemeSvg css={icon} />
       </div>
-      <div onClick={() => dispatch(setMaze())}>
+      <div onClick={() => fnWithClose(() => dispatch(setMaze()))}>
         Generate Randomized Maze
         <MazeSvg css={icon} />
       </div>

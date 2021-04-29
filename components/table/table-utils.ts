@@ -10,11 +10,13 @@ export enum Cell {
   END = 'end',
   WALL = 'wall',
   WEIGHT = 'weight',
-  PATH = 'path',
+  WEIGHT_SEARCHED = 'weightSearched',
+  WEIGHT_PATH = 'weightPath',
   SEARCHED = 'searched',
+  PATH = 'path',
 }
 
-type DragType = Cell.START | Cell.END | Cell.WEIGHT;
+type DragType = Cell.START | Cell.END | Cell.WEIGHT | Cell.WEIGHT_SEARCHED;
 export type DragItem = { type: DragType; value?: number };
 export type CellIndexParam = number | [number, number];
 
@@ -33,10 +35,12 @@ export function cellsUpdate(array: Cell[], index: CellIndexParam, value: Cell) {
 // TODO delete after theme created
 export function cellColor(cell: Cell) {
   switch (cell) {
+    case Cell.WEIGHT_PATH:
     case Cell.PATH:
       return 'green';
     case Cell.WALL:
       return 'blue';
+    case Cell.WEIGHT_SEARCHED:
     case Cell.SEARCHED:
       return 'orange';
     default:
@@ -74,13 +78,16 @@ function getPoints(cells: Cell[]) {
   const weights = new Set<number>();
   const walls = new Set<number>();
   let startPoint, endPoint;
+  const isWeight = (type: Cell) => type === Cell.WEIGHT || type === Cell.WEIGHT_PATH || type === Cell.WEIGHT_SEARCHED;
+
   for (let index = 0; index < cells.length; index++) {
     if (cells[index] === Cell.START) startPoint = index;
     else if (cells[index] === Cell.END) endPoint = index;
-    else if (cells[index] === Cell.WEIGHT) weights.add(index);
+    else if (isWeight(cells[index])) weights.add(index);
     else if (cells[index] === Cell.WALL) walls.add(index);
   }
-  if (startPoint === undefined) throw new Error('start fail');
+
+  if (startPoint === undefined || endPoint === undefined) throw new Error('start fail');
   return { startPoint: startPoint as number, endPoint: endPoint as number, weights, walls };
 }
 
@@ -92,7 +99,12 @@ function setPathAnimations(
   setCells: Dispatch<SetStateAction<Cell[]>>,
   dispatch: Dispatch<any>,
 ) {
-  const cleared: Cell[] = cells.map(cell => (cell === Cell.PATH || cell === Cell.SEARCHED ? Cell.CLEAR : cell));
+  // const cleared: Cell[] = cells.map(cell => (cell === Cell.PATH || cell === Cell.SEARCHED ? Cell.CLEAR : cell));
+  const cleared: Cell[] = cells.map(cell => {
+    if (cell === Cell.PATH || cell === Cell.SEARCHED) return Cell.CLEAR;
+    if (cell === Cell.WEIGHT_PATH || cell === Cell.WEIGHT_SEARCHED) return Cell.WEIGHT;
+    return cell;
+  });
   const timeouts: NodeJS.Timeout[] = [];
   const start = cells.indexOf(Cell.START);
   const end = cells.indexOf(Cell.END);
@@ -100,7 +112,10 @@ function setPathAnimations(
   const updateCell = (node: number, type: Cell, first = false) =>
     setCells(state => {
       const copy = first ? cleared : [...state];
-      if (node !== start && node !== end) copy[node] = type;
+      if (node !== start && node !== end) {
+        if (type === Cell.SEARCHED) copy[node] = copy[node] === Cell.WEIGHT ? Cell.WEIGHT_SEARCHED : Cell.SEARCHED;
+        else copy[node] = copy[node] === Cell.WEIGHT_SEARCHED ? Cell.WEIGHT_PATH : Cell.PATH;
+      }
       return copy;
     });
 

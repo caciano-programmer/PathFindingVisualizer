@@ -3,21 +3,22 @@
 import { useDispatch } from 'react-redux';
 import dynamic from 'next/dynamic';
 import { css } from '@emotion/react';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Header } from '../components/header/header';
 import { Sidebar } from '../components/sidebar/sidebar';
 import { Footer } from '../components/mobile/footer';
 import { MOBILE, DESKTOP, DesktopDimension, MobileDimension } from '../config/config';
 import { setDimension } from '../redux/store';
+import Table from '../components/table/table';
 
-const DynamicTable = dynamic(() => import('../components/table/table'));
+const DynamicCode = dynamic(() => import('../components/code/code'));
 
 const container = css({
   width: '100%',
   height: '100%',
   display: 'grid',
   [DESKTOP]: { gridTemplateRows: '2.25fr 17fr', gridTemplateColumns: '1.75fr 17fr' },
-  [MOBILE]: { gridTemplateRows: '2fr 17fr 3fr', gridTemplateColumns: '1fr' },
+  [MOBILE]: { gridTemplateRows: '1.75fr 15fr 2.5fr', gridTemplateColumns: '1fr' },
 });
 const header = css({ gridColumn: 'span 2' });
 const sidebar = css({ [MOBILE]: { display: 'none' } });
@@ -26,6 +27,9 @@ const footer = css({ gridColumn: 'span 2', minHeight: 0, [DESKTOP]: { display: '
 
 export default function Home() {
   const dispatch = useDispatch();
+  const [code, setCode] = useState(false);
+
+  const toggleCode = React.useCallback(() => setCode(prev => !prev), []);
 
   useEffect(() => {
     function resize() {
@@ -39,11 +43,14 @@ export default function Home() {
   }, []);
 
   return (
-    <div css={container}>
-      <Header styles={header} />
-      <Sidebar styles={sidebar} />
-      <DynamicTable styles={tableCss} />
-      <Footer styles={footer} />
-    </div>
+    <>
+      {code && <DynamicCode />}
+      <div css={container}>
+        <Header styles={header} setCode={toggleCode} />
+        <Sidebar styles={sidebar} setCode={toggleCode} />
+        <Table styles={tableCss} />
+        <Footer styles={footer} />
+      </div>
+    </>
   );
 }

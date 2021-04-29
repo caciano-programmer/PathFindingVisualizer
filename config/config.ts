@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
+
 import { AlgorithmKey } from '../algorithms/algorithms';
 import { nanoid } from 'nanoid';
 
@@ -5,10 +7,10 @@ export const ROWS = 19;
 export const COLUMNS = 45;
 export const START = 409;
 export const END = 445;
-export const MOBILE_ROW = 13;
-export const MOBILE_COL = 15;
-export const M_START = 16;
-export const M_END = 178;
+export const MOBILE_ROW = 16;
+export const MOBILE_COL = 16;
+export const M_START = 17;
+export const M_END = 238;
 
 export const DESKTOP = '@media(min-width: 1000px)';
 export const MOBILE = '@media(max-width: 999px)';

@@ -16,11 +16,9 @@ const algorithmCss = css({ flex: 1 });
 const initialize = css({ flex: 1 });
 const icon = css({ flex: 1, cursor: 'pointer' });
 
-type HeaderProps = {
-  styles: SerializedStyles;
-};
+type HeaderProps = { styles: SerializedStyles; setCode: () => void };
 
-export const Header = ({ styles }: HeaderProps) => {
+export const Header = ({ styles, setCode }: HeaderProps) => {
   const [options, showOptions] = useState(false);
   const key = useSelector(selectAlgorithm);
   const dispatch = useDispatch();
@@ -50,7 +48,7 @@ export const Header = ({ styles }: HeaderProps) => {
           <MenuSvg css={[icon, mobile]} />
         </div>
       </header>
-      <Slideable open={options} close={() => showOptions(false)} />
+      <Slideable open={options} close={() => showOptions(false)} setCode={setCode} />
     </>
   );
 };

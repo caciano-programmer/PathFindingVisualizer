@@ -43,7 +43,7 @@ export default function Table({ styles }: { styles: SerializedStyles }) {
 
   useEffect(() => setCells(InitialTableState(rows, columns, start, end)), [start, end]);
   useEffect(() => setCells(initialState.map((el, index) => (mazeSet.has(index) ? Cell.WALL : el))), [mazeSet]);
-  useEffect(() => setCells(initialState), [sessionId, columns, rows, algorithmKey]);
+  useEffect(() => setCells(initialState), [sessionId, columns, rows]);
   useEffect(() => {
     let timeoutIds: NodeJS.Timeout[] = [];
     if (status === Progress.IN_PROGESS) timeoutIds = animations(cells, algorithmKey, rows, columns, setCells, dispatch);

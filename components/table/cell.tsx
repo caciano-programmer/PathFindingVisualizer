@@ -82,7 +82,7 @@ const Cell = ({ value, type, setCell, style }: CellProps) => {
           <End css={icon} preserveAspectRatio="none" />
         </div>
       )}
-      {type === CellType.WEIGHT && (
+      {(type === CellType.WEIGHT || type === CellType.WEIGHT_SEARCHED || type === CellType.WEIGHT_PATH) && (
         <div css={[fullSize]} ref={dragWeight} draggable={true} onDragStart={ev => onDragStart(ev, CellType.WEIGHT)}>
           <KettlebellSvg css={icon} preserveAspectRatio="none" />
         </div>

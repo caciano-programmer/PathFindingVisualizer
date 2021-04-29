@@ -20,9 +20,9 @@ const child = css({ flex: '1', cursor: 'pointer' });
 const icons = css({ width: '40px', height: '40px' });
 const grabItem = css({ cursor: 'grab' });
 
-type SidebarProps = { styles: SerializedStyles };
+type SidebarProps = { styles: SerializedStyles; setCode: () => void };
 
-export const Sidebar = ({ styles }: SidebarProps) => {
+export const Sidebar = ({ styles, setCode }: SidebarProps) => {
   const dispatch = useDispatch();
 
   const dragStart = (event: React.DragEvent<HTMLDivElement>) => {
@@ -35,7 +35,7 @@ export const Sidebar = ({ styles }: SidebarProps) => {
         Tutorial
         <TutorialSvg />
       </div>
-      <div css={child}>
+      <div css={child} onClick={setCode}>
         Algorithm Code
         <CodeSvg css={icons} />
       </div>
