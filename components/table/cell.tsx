@@ -16,7 +16,7 @@ const getCellCss = (type: CellType, animate: boolean) =>
     borderRight: '1px solid black',
     borderTop: '1px solid black',
     backgroundColor: `${cellColor(type)}`,
-    transition: animate ? `background-color 1s` : '',
+    transition: animate ? `background-color 1.5s` : '',
   });
 
 type CellProps = {
@@ -59,7 +59,7 @@ const Cell = ({ value, type, setCell, style }: CellProps) => {
     if (type !== CellType.CLEAR) return;
     event.preventDefault();
     const { movedVal, movedType } = JSON.parse(event.dataTransfer.getData('text/plain'));
-    if (movedVal) setCell([movedVal, value], movedType);
+    if (movedVal != undefined) setCell([movedVal, value], movedType);
     else setCell(value, movedType);
   };
 

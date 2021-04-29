@@ -23,9 +23,13 @@ export const Footer = ({ styles }: FooterProps) => {
   const key = useSelector(selectAlgorithm);
   const dispatch = useDispatch();
 
+  const dragStart = (event: React.DragEvent<HTMLDivElement>) => {
+    event.dataTransfer.setData('text/plain', JSON.stringify({ movedType: Cell.WEIGHT }));
+  };
+
   return (
     <div css={[styles, container]}>
-      <div css={iconHolder} ref={dragWeight}>
+      <div css={iconHolder} ref={dragWeight} draggable={true} onDragStart={dragStart}>
         <KettlebellSvg css={icon} preserveAspectRatio="none" />
       </div>
       <select
@@ -34,7 +38,9 @@ export const Footer = ({ styles }: FooterProps) => {
         onChange={event => dispatch(setAlgorithm(event.target.value as AlgorithmKey))}
       >
         {Object.entries(algorithms).map(([currentKey, { name }]) => (
-          <option key={currentKey}>{name}</option>
+          <option key={currentKey} value={currentKey} disabled={key === currentKey}>
+            {name}
+          </option>
         ))}
       </select>
       <button type="button" css={initialize} onClick={() => dispatch(setStatus(Progress.IN_PROGESS))}>

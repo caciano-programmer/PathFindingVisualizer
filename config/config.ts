@@ -1,10 +1,10 @@
 import { AlgorithmKey } from '../algorithms/algorithms';
 import { nanoid } from 'nanoid';
 
-export const ROWS = 17;
-export const COLUMNS = 43;
-export const START = 348;
-export const END = 381;
+export const ROWS = 19;
+export const COLUMNS = 45;
+export const START = 409;
+export const END = 445;
 export const MOBILE_ROW = 13;
 export const MOBILE_COL = 15;
 export const M_START = 16;
@@ -19,7 +19,7 @@ export enum Progress {
   COMPLETED = 'completed',
 }
 
-export type Dimensions = { rows: number; columns: number };
+export type Dimensions = { rows: number; columns: number; start: number; end: number };
 export type State = {
   status: Progress;
   algorithm: AlgorithmKey;
@@ -29,12 +29,12 @@ export type State = {
 };
 
 const sessionId = nanoid();
-export const MobileDimension: Dimensions = { rows: MOBILE_ROW, columns: MOBILE_COL };
-export const DesktopDimension: Dimensions = { rows: ROWS, columns: COLUMNS };
+export const MobileDimension: Dimensions = { rows: MOBILE_ROW, columns: MOBILE_COL, start: M_START, end: M_END };
+export const DesktopDimension: Dimensions = { rows: ROWS, columns: COLUMNS, start: START, end: END };
 export const InitialState: State = {
   status: Progress.IDLE,
   algorithm: AlgorithmKey.aStar,
-  dimensions: MobileDimension,
+  dimensions: DesktopDimension,
   maze: [],
   sessionId,
 };

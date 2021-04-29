@@ -6,9 +6,7 @@ import { MemoizedCell } from './cell';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAlgorithm, selectDimensions, selectMaze, selectSessionId, selectStatus } from '../../redux/store';
 import { COLUMNS, DESKTOP, MOBILE, MOBILE_COL, MOBILE_ROW, Progress, ROWS } from '../../config/config';
-import { algorithms, Explored } from '../../algorithms/algorithms';
-import { Cell, CellIndexParam, cellsUpdate, getPoints, setPathAnimations } from './table-utils';
-import { buildAdjacencyList } from '../../algorithms/utils';
+import { animations, Cell, CellIndexParam, cellsUpdate } from './table-utils';
 
 const grid = css({
   width: 'calc(100% - 2vw)',
@@ -29,46 +27,27 @@ const grid = css({
 });
 const mobile = css({ [MOBILE]: { display: 'none' } });
 
-const InitialTableState = (rows: number, columns: number, points: StartPoints): Cell[] =>
-  [...Array(rows * columns).keys()].map(val =>
-    val === points?.start ? Cell.START : val === points?.end ? Cell.END : Cell.CLEAR,
-  );
+const InitialTableState = (rows: number, columns: number, start: number, end: number): Cell[] =>
+  [...Array(rows * columns).keys()].map(val => (val === start ? Cell.START : val === end ? Cell.END : Cell.CLEAR));
 
-type StartPoints = { start: number; end: number } | undefined;
-type TableProps = { styles: SerializedStyles; startPoints: StartPoints };
-
-export default function Table({ styles, startPoints }: TableProps) {
-  const { rows, columns } = useSelector(selectDimensions);
+export default function Table({ styles }: { styles: SerializedStyles }) {
+  const { rows, columns, start, end } = useSelector(selectDimensions);
   const status = useSelector(selectStatus);
   const algorithmKey = useSelector(selectAlgorithm);
   const maze = useSelector(selectMaze);
   const mazeSet = React.useMemo(() => new Set(maze), [maze]);
   const sessionId = useSelector(selectSessionId);
-  const initialState = InitialTableState(rows, columns, startPoints);
+  const initialState = InitialTableState(rows, columns, start, end);
   const [cells, setCells] = useState(initialState);
   const dispatch = useDispatch();
 
+  useEffect(() => setCells(InitialTableState(rows, columns, start, end)), [start, end]);
   useEffect(() => setCells(initialState.map((el, index) => (mazeSet.has(index) ? Cell.WALL : el))), [mazeSet]);
   useEffect(() => setCells(initialState), [sessionId, columns, rows, algorithmKey]);
   useEffect(() => {
-    if (startPoints === undefined) return;
-    if (status === Progress.IN_PROGESS) {
-      const { startPoint, endPoint, weights, walls } = getPoints(cells);
-      let explored: Explored = { paths: new Map(), visited: [startPoint] };
-      const algorithm = algorithms[algorithmKey];
-      const list = buildAdjacencyList(rows, columns, walls);
-      const { aStar, dfs, dijkstra, bellmanFord, bfs } = algorithms;
-      let timeoutIds: NodeJS.Timeout[] = [];
-
-      if (algorithm === bellmanFord || algorithm === dijkstra) explored = algorithm.fn(list, startPoint);
-      else if (algorithm === aStar) explored = algorithm.fn(list, startPoint, endPoint, columns, weights);
-      else if (algorithm === bfs || algorithm === dfs) explored = algorithm.fn(list, startPoint, endPoint);
-      console.log(explored);
-      const path = explored.paths.get(endPoint);
-      if (path?.path) timeoutIds = setPathAnimations(cells, path.path, explored.visited, setCells, dispatch);
-
-      return () => timeoutIds.forEach(id => clearTimeout(id));
-    }
+    let timeoutIds: NodeJS.Timeout[] = [];
+    if (status === Progress.IN_PROGESS) timeoutIds = animations(cells, algorithmKey, rows, columns, setCells, dispatch);
+    return () => timeoutIds.forEach(id => clearTimeout(id));
   }, [status]);
 
   const fn = useCallback((index: CellIndexParam, type: Cell) => setCells(prev => cellsUpdate(prev, index, type)), []);
