@@ -3,18 +3,37 @@ import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import Highlighter from 'react-highlight-words';
 import { codeText, highlightTypes } from './codeUtils';
+import CloseSvg from '../../public/exit.svg';
+import { DESKTOP, MOBILE } from '../../config/config';
 
-const container = css({
-  position: 'fixed',
-  top: 0,
-  bottom: 0,
-  right: 0,
-  left: 0,
-  overflow: 'auto',
+const fullSize = { width: '100%', height: '100%' };
+const getWrapper = (visible: boolean) =>
+  css({ position: 'fixed', top: visible ? 0 : '-100%', ...fullSize, transition: 'top .4s linear' });
+const header = css({
+  position: 'relative',
+  height: '10%',
+  width: '100%',
   backgroundColor: 'gray',
-  zIndex: 999,
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
 });
-const fullSize = css({ width: '100%', height: '100%' });
+const title = css({
+  [DESKTOP]: { flex: 15 },
+  [MOBILE]: { flex: 5 },
+  paddingLeft: '2%',
+  fontSize: '6vh',
+  fontWeight: 500,
+});
+const iconContainer = css({ flex: 1, cursor: 'pointer', paddingRight: '2%' });
+const icon = css({ ...fullSize, fill: 'white' });
+const codeContainer = css({
+  width: '100%',
+  height: '90%',
+  overflow: 'auto',
+  backgroundColor: 'lightgray',
+});
 
 const codeString = codeText;
 const { keywords, functions, separators, comments } = highlightTypes;
@@ -28,15 +47,28 @@ const darkJsx = ReactDOMServer.renderToString(
 //   <Highlighter textToHighlight={codeString} searchWords={all} caseSensitive autoEscape highlightTag={} />,
 // );
 
-const Code = () => (
-  <div css={container}>
-    <pre css={fullSize}>
-      <code css={fullSize}>
-        <div css={fullSize} dangerouslySetInnerHTML={{ __html: darkJsx }} />
-      </code>
-    </pre>
-  </div>
-);
+type CodeProps = { isOpen: boolean; close: () => void };
+
+const Code = ({ isOpen, close }: CodeProps) => {
+  const wrapper = getWrapper(isOpen);
+  return (
+    <div css={wrapper}>
+      <div css={header}>
+        <div css={title}>Algorithms</div>
+        <div css={iconContainer} onClick={close}>
+          <CloseSvg css={icon} />
+        </div>
+      </div>
+      <div css={codeContainer}>
+        <pre css={fullSize}>
+          <code css={fullSize}>
+            <div css={fullSize} dangerouslySetInnerHTML={{ __html: darkJsx }} />
+          </code>
+        </pre>
+      </div>
+    </div>
+  );
+};
 
 export default React.memo(Code);
 

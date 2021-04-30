@@ -15,7 +15,7 @@ const keywords = [
   'private',
   'constructor',
 ];
-const separators = [';', '{', '}', '(', ')', ',', '[', ']', '<', '>', '.', '=', ':', '!', '+', '-', '/', '?', '|'];
+const separators = [';', '{', '}', '(', ')', ',', '[', ']', '<', '>', '.', '=', ':', '!', '+', '-', '/', '?', '|', '%'];
 const functions = ['dijkstra', 'aStar', 'bellmanFord', 'depthFirstSearch', 'breadthFirstSearch', 'heuristic', 'fn'];
 const comments = [
   '//=========================================Helper Functions=========================================',

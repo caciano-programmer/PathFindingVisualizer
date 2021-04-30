@@ -27,7 +27,7 @@ type CellProps = {
 };
 
 const Cell = ({ value, type, setCell, style }: CellProps) => {
-  const cellCss = getCellCss(type, type !== CellType.CLEAR);
+  const cellCss = getCellCss(type, type !== CellType.CLEAR && type !== CellType.WALL);
   const grabCss = grabItem([CellType.START, CellType.END, CellType.WEIGHT].includes(type));
 
   const dragStart = useDrag({ type: CellType.START, item: { type: CellType.START, value } })[1];

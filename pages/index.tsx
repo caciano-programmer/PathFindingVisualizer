@@ -29,7 +29,8 @@ export default function Home() {
   const dispatch = useDispatch();
   const [code, setCode] = useState(false);
 
-  const toggleCode = React.useCallback(() => setCode(prev => !prev), []);
+  const closeCode = React.useCallback(() => setCode(false), []);
+  const openCode = React.useCallback(() => setCode(true), []);
 
   useEffect(() => {
     function resize() {
@@ -44,10 +45,10 @@ export default function Home() {
 
   return (
     <>
-      {code && <DynamicCode />}
+      <DynamicCode isOpen={code} close={closeCode} />
       <div css={container}>
-        <Header styles={header} setCode={toggleCode} />
-        <Sidebar styles={sidebar} setCode={toggleCode} />
+        <Header styles={header} setCode={openCode} />
+        <Sidebar styles={sidebar} setCode={openCode} />
         <Table styles={tableCss} />
         <Footer styles={footer} />
       </div>
