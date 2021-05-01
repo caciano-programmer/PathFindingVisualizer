@@ -19,12 +19,12 @@ type FooterProps = {
 };
 
 export const Footer = ({ styles }: FooterProps) => {
-  const dragWeight = useDrag({ type: Cell.WEIGHT, item: { type: Cell.WEIGHT } })[1];
+  const dragWeight = useDrag({ type: Cell.WEIGHT_SM, item: { type: Cell.WEIGHT_SM } })[1];
   const key = useSelector(selectAlgorithm);
   const dispatch = useDispatch();
 
   const dragStart = (event: React.DragEvent<HTMLDivElement>) => {
-    event.dataTransfer.setData('text/plain', JSON.stringify({ movedType: Cell.WEIGHT }));
+    event.dataTransfer.setData('text/plain', JSON.stringify({ movedType: Cell.WEIGHT_SM }));
   };
 
   return (

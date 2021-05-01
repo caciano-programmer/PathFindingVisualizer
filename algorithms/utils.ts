@@ -1,7 +1,6 @@
 import { END, START } from '../config/config';
 
 export type AdjacencyList = Map<number, number[]>;
-export type Weights = Set<number>;
 type Walls = Set<number>;
 
 // This maze generation function uses a modified version of recursive division algorithm
@@ -96,15 +95,15 @@ function isFree(beginning: number, jump: number, walls: Set<number>, openings: S
  * @param jump number of spaces required to reach sibling, i.e. 1 for horizontal wall and column length for vertical walls
  * @param count total number of walls added for in current column or row
  */
-const addEdges = (
+function addEdges(
   opening: number,
   selected: number,
   jump: number,
   count: number,
   horizontal: number[],
   vertical: number[],
-) => {
+) {
   const type = Math.abs(jump) <= 1 ? horizontal : vertical;
   if (selected > 1) type.push(opening - jump);
   if (count - selected > 2) type.push(opening + jump);
-};
+}

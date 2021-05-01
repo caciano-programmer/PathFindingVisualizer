@@ -40,3 +40,6 @@ export const InitialState: State = {
   maze: [],
   sessionId,
 };
+
+export const Small_Weight_Cost = 5;
+export const Large_Weight_Cost = 13;

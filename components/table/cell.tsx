@@ -6,7 +6,7 @@ import { useDrag, useDrop } from 'react-dnd';
 import Start from '../../public/start.svg';
 import End from '../../public/end.svg';
 import KettlebellSvg from '../../public/kettlebell.svg';
-import { Cell as CellType, cellColor, CellIndexParam, DragItem } from './table-utils';
+import { Cell as CellType, cellColor, CellIndexParam, DragItem, DragItemList, isWeightType } from './table-utils';
 
 const fullSize = css({ width: '100%', height: '100%' });
 const icon = css({ ...fullSize });
@@ -27,14 +27,14 @@ type CellProps = {
 };
 
 const Cell = ({ value, type, setCell, style }: CellProps) => {
+  const { isWeight } = isWeightType(type);
   const cellCss = getCellCss(type, type !== CellType.CLEAR && type !== CellType.WALL);
-  const grabCss = grabItem([CellType.START, CellType.END, CellType.WEIGHT].includes(type));
+  const grabCss = grabItem(isWeight || type === CellType.START || type === CellType.END);
 
-  const dragStart = useDrag({ type: CellType.START, item: { type: CellType.START, value } })[1];
-  const dragEnd = useDrag({ type: CellType.END, item: { type: CellType.END, value } })[1];
-  const dragWeight = useDrag({ type: CellType.WEIGHT, item: { type: CellType.WEIGHT, value } })[1];
+  const dragItem = useDrag({ type, item: { type, value } })[1];
+
   const drop = useDrop({
-    accept: [CellType.START, CellType.END, CellType.WEIGHT],
+    accept: DragItemList,
     drop: ({ type, value: previous }: DragItem) =>
       previous === undefined ? setCell(value, type) : setCell([previous, value], type),
     canDrop: () => type === CellType.CLEAR,
@@ -42,7 +42,7 @@ const Cell = ({ value, type, setCell, style }: CellProps) => {
 
   const clickCell = () => {
     if (type === CellType.CLEAR) setCell(value, CellType.WALL);
-    else if (type === CellType.WEIGHT || type === CellType.WALL) setCell(value, CellType.CLEAR);
+    else if (!isWeight || type === CellType.WALL) setCell(value, CellType.CLEAR);
   };
   const visit = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (event.ctrlKey || event.shiftKey) {
@@ -50,7 +50,9 @@ const Cell = ({ value, type, setCell, style }: CellProps) => {
       else if (type === CellType.WALL) setCell(value, CellType.CLEAR);
     }
   };
-  const onDragStart = (event: React.DragEvent<HTMLDivElement>, movedType: CellType) => {
+  const onDragStart = (event: React.DragEvent<HTMLDivElement>) => {
+    const { isWeight, small } = isWeightType(type);
+    const movedType = isWeight ? (small ? CellType.WEIGHT_SM : CellType.WEIGHT_LG) : type;
     const data = { movedVal: value, movedType };
     event.dataTransfer.setData('text/plain', JSON.stringify(data));
   };
@@ -72,19 +74,11 @@ const Cell = ({ value, type, setCell, style }: CellProps) => {
       onDrop={dropContainer}
       onDragOver={allowDrop}
     >
-      {type === CellType.START && (
-        <div ref={dragStart} css={fullSize} draggable={true} onDragStart={ev => onDragStart(ev, CellType.START)}>
-          <Start css={icon} preserveAspectRatio="none" />
-        </div>
-      )}
-      {type === CellType.END && (
-        <div ref={dragEnd} css={fullSize} draggable={true} onDragStart={ev => onDragStart(ev, CellType.END)}>
-          <End css={icon} preserveAspectRatio="none" />
-        </div>
-      )}
-      {(type === CellType.WEIGHT || type === CellType.WEIGHT_SEARCHED || type === CellType.WEIGHT_PATH) && (
-        <div css={[fullSize]} ref={dragWeight} draggable={true} onDragStart={ev => onDragStart(ev, CellType.WEIGHT)}>
-          <KettlebellSvg css={icon} preserveAspectRatio="none" />
+      {DragItemList.includes(type) && (
+        <div ref={dragItem} css={fullSize} draggable={true} onDragStart={onDragStart}>
+          {type === CellType.START && <Start css={icon} preserveAspectRatio="none" />}
+          {type === CellType.END && <End css={icon} preserveAspectRatio="none" />}
+          {isWeight && <KettlebellSvg css={icon} preserveAspectRatio="none" />}
         </div>
       )}
     </div>

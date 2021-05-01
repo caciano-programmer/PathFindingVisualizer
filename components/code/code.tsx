@@ -34,6 +34,7 @@ const codeContainer = css({
   overflow: 'auto',
   backgroundColor: 'lightgray',
 });
+const text = css({ fontSize: '1.4vw' });
 
 const codeString = codeText;
 const { keywords, functions, separators, comments } = highlightTypes;
@@ -62,7 +63,7 @@ const Code = ({ isOpen, close }: CodeProps) => {
       <div css={codeContainer}>
         <pre css={fullSize}>
           <code css={fullSize}>
-            <div css={fullSize} dangerouslySetInnerHTML={{ __html: darkJsx }} />
+            <div css={[fullSize, text]} dangerouslySetInnerHTML={{ __html: darkJsx }} />
           </code>
         </pre>
       </div>
@@ -73,7 +74,7 @@ const Code = ({ isOpen, close }: CodeProps) => {
 export default React.memo(Code);
 
 function Highlight({ children }: { children: string }) {
-  let color = 'white';
+  let color = 'darkgray';
   if (comments.includes(children)) color = 'orange';
   else if (keywords.includes(children)) color = 'red';
   else if (functions.includes(children)) color = 'blue';

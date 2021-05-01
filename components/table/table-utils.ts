@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
 import { AlgorithmKey, algorithms, Explored } from '../../algorithms/algorithms';
 import { buildAdjacencyList } from '../../algorithms/utils';
-import { Progress } from '../../config/config';
+import { Large_Weight_Cost, Progress, Small_Weight_Cost } from '../../config/config';
 import { setStatus } from '../../redux/store';
 
 export enum Cell {
@@ -9,22 +9,38 @@ export enum Cell {
   START = 'start',
   END = 'end',
   WALL = 'wall',
-  WEIGHT = 'weight',
-  WEIGHT_SEARCHED = 'weightSearched',
-  WEIGHT_PATH = 'weightPath',
+  WEIGHT_SM = 'weightSmall',
+  WEIGHT_LG = 'weightLarge',
+  WEIGHT_S_SM = 'weightSmallSearched',
+  WEIGHT_S_LG = 'weightLargeSearched',
+  WEIGHT_P_SM = 'weightPathSmall',
+  WEIGHT_P_LG = 'weightPathLarge',
   SEARCHED = 'searched',
   PATH = 'path',
 }
 
-type DragType = Cell.START | Cell.END | Cell.WEIGHT | Cell.WEIGHT_SEARCHED;
-export type DragItem = { type: DragType; value?: number };
+const draggableCells = [
+  Cell.END,
+  Cell.START,
+  Cell.WEIGHT_SM,
+  Cell.WEIGHT_LG,
+  Cell.WEIGHT_S_LG,
+  Cell.WEIGHT_S_SM,
+  Cell.WEIGHT_P_LG,
+  Cell.WEIGHT_P_SM,
+] as const;
+
+export const DragItemList: Cell[] = [...draggableCells];
+export type DragItem = { type: typeof draggableCells[number]; value?: number };
 export type CellIndexParam = number | [number, number];
 
 // updates individual cell and replaces old cell if index has 2 values
 export function cellsUpdate(array: Cell[], index: CellIndexParam, value: Cell) {
   const copy = [...array];
   if (Array.isArray(index)) {
-    copy[index[0]] = Cell.CLEAR;
+    const { searched, path } = isWeightType(copy[index[0]]);
+    const original = searched ? Cell.SEARCHED : path ? Cell.PATH : Cell.CLEAR;
+    copy[index[0]] = original;
     copy[index[1]] = value;
   } else {
     copy[index] = value;
@@ -35,12 +51,14 @@ export function cellsUpdate(array: Cell[], index: CellIndexParam, value: Cell) {
 // TODO delete after theme created
 export function cellColor(cell: Cell) {
   switch (cell) {
-    case Cell.WEIGHT_PATH:
+    case Cell.WEIGHT_P_LG:
+    case Cell.WEIGHT_P_SM:
     case Cell.PATH:
       return 'green';
     case Cell.WALL:
       return 'blue';
-    case Cell.WEIGHT_SEARCHED:
+    case Cell.WEIGHT_S_LG:
+    case Cell.WEIGHT_S_SM:
     case Cell.SEARCHED:
       return 'orange';
     default:
@@ -73,17 +91,18 @@ export function animations(
   return timeoutIds;
 }
 
-// returns the index of start, end, and every locaation of a weights, every location of walls
+// returns the index of start, end, and every location of a weight, every location of walls
 function getPoints(cells: Cell[]) {
-  const weights = new Set<number>();
+  const weights = new Map<number, typeof Small_Weight_Cost | typeof Large_Weight_Cost>();
   const walls = new Set<number>();
   let startPoint, endPoint;
-  const isWeight = (type: Cell) => type === Cell.WEIGHT || type === Cell.WEIGHT_PATH || type === Cell.WEIGHT_SEARCHED;
 
   for (let index = 0; index < cells.length; index++) {
+    const { isWeight, small, large } = isWeightType(cells[index]);
     if (cells[index] === Cell.START) startPoint = index;
     else if (cells[index] === Cell.END) endPoint = index;
-    else if (isWeight(cells[index])) weights.add(index);
+    else if (isWeight && small) weights.set(index, Small_Weight_Cost);
+    else if (isWeight && large) weights.set(index, Large_Weight_Cost);
     else if (cells[index] === Cell.WALL) walls.add(index);
   }
 
@@ -99,10 +118,11 @@ function setPathAnimations(
   setCells: Dispatch<SetStateAction<Cell[]>>,
   dispatch: Dispatch<any>,
 ) {
-  // const cleared: Cell[] = cells.map(cell => (cell === Cell.PATH || cell === Cell.SEARCHED ? Cell.CLEAR : cell));
   const cleared: Cell[] = cells.map(cell => {
+    const { isWeight, searched, path, small, large } = isWeightType(cell);
     if (cell === Cell.PATH || cell === Cell.SEARCHED) return Cell.CLEAR;
-    if (cell === Cell.WEIGHT_PATH || cell === Cell.WEIGHT_SEARCHED) return Cell.WEIGHT;
+    else if (isWeight && (searched || path) && small) return Cell.WEIGHT_SM;
+    else if (isWeight && (searched || path) && large) return Cell.WEIGHT_LG;
     return cell;
   });
   const timeouts: NodeJS.Timeout[] = [];
@@ -113,8 +133,10 @@ function setPathAnimations(
     setCells(state => {
       const copy = first ? cleared : [...state];
       if (node !== start && node !== end) {
-        if (type === Cell.SEARCHED) copy[node] = copy[node] === Cell.WEIGHT ? Cell.WEIGHT_SEARCHED : Cell.SEARCHED;
-        else copy[node] = copy[node] === Cell.WEIGHT_SEARCHED ? Cell.WEIGHT_PATH : Cell.PATH;
+        const { isWeight, small } = isWeightType(copy[node]);
+        if (type === Cell.SEARCHED)
+          copy[node] = isWeight ? (small ? Cell.WEIGHT_S_SM : Cell.WEIGHT_S_LG) : Cell.SEARCHED;
+        else copy[node] = isWeight ? (small ? Cell.WEIGHT_P_SM : Cell.WEIGHT_P_LG) : Cell.PATH;
       }
       return copy;
     });
@@ -140,4 +162,22 @@ function setPathAnimations(
   });
 
   return timeouts;
+}
+
+type WeightType = { isWeight: boolean; small: boolean; large: boolean; searched: boolean; path: boolean; cell: Cell };
+export function isWeightType(cell: Cell): WeightType {
+  const isWeight =
+    cell === Cell.WEIGHT_SM ||
+    cell === Cell.WEIGHT_LG ||
+    cell === Cell.WEIGHT_S_SM ||
+    cell === Cell.WEIGHT_S_LG ||
+    cell === Cell.WEIGHT_P_SM ||
+    cell === Cell.WEIGHT_P_LG;
+
+  const small = cell === Cell.WEIGHT_SM || cell === Cell.WEIGHT_S_SM || cell === Cell.WEIGHT_P_SM;
+  const large = isWeight && !small;
+  const searched = cell === Cell.WEIGHT_S_LG || cell === Cell.WEIGHT_S_SM;
+  const path = cell === Cell.WEIGHT_P_SM || cell === Cell.WEIGHT_P_LG;
+
+  return { isWeight, small, large, searched, path, cell };
 }

@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
-import { AdjacencyList, Weights } from './utils';
+import { AdjacencyList } from './utils';
+import { Small_Weight_Cost, Large_Weight_Cost } from '../config/config';
 
 type SinglePath = { length: number; path: number[] };
 export type Path = Map<number, SinglePath>;
 export type Explored = { paths: Path; visited: number[] };
 type DijkstrasNode = { key: number; cost: number };
 type AstarNode = { key: number; movement: number; value: number; cost: number; path: number[] };
-
-const Weight_Cost = 5;
+type Weights = Map<number, typeof Small_Weight_Cost | typeof Large_Weight_Cost>;
 
 export const algorithms = {
   aStar: { name: 'A*' as const, fn: aStar },
@@ -25,7 +25,7 @@ export enum AlgorithmKey {
   dfs = 'dfs',
 }
 
-function dijkstra(list: AdjacencyList, start: number, weights: Weights = new Set()): Explored {
+function dijkstra(list: AdjacencyList, start: number, weights: Weights = new Map()): Explored {
   const paths: Path = new Map();
   const visited = new Set<number>();
   for (const key of list.keys())
@@ -39,7 +39,7 @@ function dijkstra(list: AdjacencyList, start: number, weights: Weights = new Set
     const currentPath = paths.get(current)!;
     for (const neighbor of neighbors) {
       const neighborPath = paths.get(neighbor)!;
-      const length = currentPath.length + (weights.has(neighbor) ? Weight_Cost : 1);
+      const length = currentPath.length + (weights.has(neighbor) ? weights.get(neighbor)! : 1);
       if (length < neighborPath.length) {
         paths.set(neighbor, { length, path: [...currentPath.path, neighbor] });
         unvisited.set({ key: neighbor, cost: length });
@@ -71,7 +71,7 @@ function aStar(list: AdjacencyList, start: number, dest: number, col: number, we
     if (node.key === dest) return { length: node.movement, path: node.path };
     for (const adjacent of list.get(node.key)!.filter(val => !closed.has(val))) {
       const value = heuristic(adjacent, dest, col);
-      const movement = node.movement + (weights?.has(adjacent) ? Weight_Cost : 1);
+      const movement = node.movement + (weights.has(adjacent) ? weights.get(adjacent)! : 1);
       const cost = movement + value;
       const betterInOpen = open.has(adjacent) && open.get(adjacent)!.cost <= cost;
       if (!betterInOpen) open.set({ key: adjacent, movement, value, cost, path: [...node.path, adjacent] });
@@ -82,7 +82,7 @@ function aStar(list: AdjacencyList, start: number, dest: number, col: number, we
   return { paths: new Map([[dest, fn()]]), visited: open.explored() };
 }
 
-function bellmanFord(list: AdjacencyList, start: number, weights?: Weights): Explored {
+function bellmanFord(list: AdjacencyList, start: number, weights: Weights): Explored {
   const paths: Path = new Map();
   const visitedOrder: Set<number> = new Set();
   for (const vertice of list.keys()) paths.set(vertice, { length: Infinity, path: [] });
@@ -96,7 +96,7 @@ function bellmanFord(list: AdjacencyList, start: number, weights?: Weights): Exp
         visitedOrder.add(current);
         for (const edge of list.get(current)!) {
           open.push(edge);
-          const cost = paths.get(current)!.length + (weights?.has(edge) ? Weight_Cost : 1);
+          const cost = paths.get(current)!.length + (weights.has(edge) ? weights.get(edge)! : 1);
           if (cost < paths.get(edge)!.length) {
             updatesMade = true;
             paths.set(edge, { length: cost, path: [...paths.get(current)!.path, edge] });
