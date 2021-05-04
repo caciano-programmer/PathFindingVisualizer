@@ -8,7 +8,7 @@ import { DESKTOP, MOBILE } from '../../config/config';
 
 const fullSize = { width: '100%', height: '100%' };
 const getWrapper = (visible: boolean) =>
-  css({ position: 'fixed', top: visible ? 0 : '-100%', ...fullSize, transition: 'top .4s linear' });
+  css({ position: 'fixed', top: visible ? 0 : '-100%', ...fullSize, transition: 'top .4s linear', zIndex: 2 });
 const header = css({
   position: 'relative',
   height: '10%',
@@ -18,6 +18,8 @@ const header = css({
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'space-between',
+  borderBottom: '1px solid black',
+  boxShadow: '0 1px 2px',
 });
 const title = css({
   [DESKTOP]: { flex: 15 },
@@ -34,7 +36,7 @@ const codeContainer = css({
   overflow: 'auto',
   backgroundColor: 'lightgray',
 });
-const text = css({ fontSize: '1.4vw' });
+const text = css({ fontSize: 'max(1.4vw, 1.3vh)' });
 
 const codeString = codeText;
 const { keywords, functions, separators, comments } = highlightTypes;

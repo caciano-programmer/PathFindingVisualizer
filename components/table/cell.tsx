@@ -13,8 +13,8 @@ const icon = css({ ...fullSize });
 const grabItem = (isDragItem: boolean) => css({ cursor: isDragItem ? 'grab' : 'default' });
 const getCellCss = (type: CellType, animate: boolean) =>
   css({
-    borderRight: '1px solid black',
-    borderTop: '1px solid black',
+    borderRight: '1px solid rgba(0,0,0,0.25)',
+    borderTop: '1px solid rgba(0,0,0,0.25)',
     backgroundColor: `${cellColor(type)}`,
     transition: animate ? `background-color 1.5s` : '',
   });

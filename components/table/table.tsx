@@ -11,8 +11,8 @@ import { animations, Cell, CellIndexParam, cellsUpdate } from './table-utils';
 const grid = css({
   width: 'calc(100% - 2vw)',
   height: 'calc(100% - 2vw)',
-  borderLeft: '1px solid black',
-  borderBottom: '1px solid black',
+  borderLeft: '1px solid rgba(0,0,0,0.25)',
+  borderBottom: '1px solid rgba(0,0,0,0.25)',
   margin: '1vw',
   overflow: 'hidden',
   display: 'grid',
@@ -27,8 +27,8 @@ const grid = css({
 });
 const mobile = css({ [MOBILE]: { display: 'none' } });
 
-const InitialTableState = (rows: number, columns: number, start: number, end: number): Cell[] =>
-  [...Array(rows * columns).keys()].map(val => (val === start ? Cell.START : val === end ? Cell.END : Cell.CLEAR));
+const InitialTableState = (start: number, end: number): Cell[] =>
+  [...Array(ROWS * COLUMNS).keys()].map(val => (val === start ? Cell.START : val === end ? Cell.END : Cell.CLEAR));
 
 export default function Table({ styles }: { styles: SerializedStyles }) {
   const { rows, columns, start, end } = useSelector(selectDimensions);
@@ -37,11 +37,11 @@ export default function Table({ styles }: { styles: SerializedStyles }) {
   const maze = useSelector(selectMaze);
   const mazeSet = React.useMemo(() => new Set(maze), [maze]);
   const sessionId = useSelector(selectSessionId);
-  const initialState = InitialTableState(rows, columns, start, end);
+  const initialState = InitialTableState(start, end);
   const [cells, setCells] = useState(initialState);
   const dispatch = useDispatch();
 
-  useEffect(() => setCells(InitialTableState(rows, columns, start, end)), [start, end]);
+  useEffect(() => setCells(InitialTableState(start, end)), [start, end]);
   useEffect(() => setCells(initialState.map((el, index) => (mazeSet.has(index) ? Cell.WALL : el))), [mazeSet]);
   useEffect(() => setCells(initialState), [sessionId, columns, rows]);
   useEffect(() => {

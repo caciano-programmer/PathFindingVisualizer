@@ -152,6 +152,7 @@ function setPathAnimations(
   });
 
   visitedAnimations.then(() => {
+    if (path.length === 0) dispatch(setStatus(Progress.COMPLETED));
     for (let index = 0; index < path.length; index++) {
       const timeout = setTimeout(() => {
         updateCell(path[index], Cell.PATH);
