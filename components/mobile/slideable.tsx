@@ -2,14 +2,14 @@ import { css } from '@emotion/react';
 import { useSwipeable } from 'react-swipeable';
 import CloseSvg from '../../public/exit.svg';
 import { useDispatch } from 'react-redux';
-import { setMaze } from '../../redux/store';
+import { setAlgorithm, setMaze } from '../../redux/store';
 import { Description } from '../shared/description';
 import Next from '../../public/next.svg';
+import { AlgorithmKey, algorithms } from '../../algorithms/algorithms';
+import { closedOptions, Option, secondaryOptions } from '../../config/config';
 
 const container = (open: boolean) =>
   css({
-    display: 'grid',
-    gridTemplateRows: '1fr 1fr 1fr 1fr 1fr 5fr',
     height: '100%',
     width: '80%',
     position: 'fixed',
@@ -23,29 +23,29 @@ const header = css({
   display: 'flex',
   flexDirection: 'row',
   width: '100%',
-  height: '100%',
+  height: '11%',
   alignItems: 'center',
-  boxShadow: '0 1px 2px',
+  boxShadow: '0 1px 3px',
 });
-const headerTitle = css({ justifySelf: 'start', flexGrow: 1, fontSize: '4.5vh', paddingLeft: '5%', fontWeight: 500 });
-const headerIcon = css({ justifySelf: 'end', flexGrow: 1, textAlign: 'right' });
+const headerTitle = css({ justifySelf: 'start', flex: 1, fontSize: '5.5vh', paddingLeft: '5%', fontWeight: 500 });
+const headerIcon = css({ justifySelf: 'end', flex: 1, textAlign: 'right' });
 const closeIcon = css({ cursor: 'pointer', width: '9vh', height: '9vh' });
-const option = css({ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '0 2.5% 0 2.5%' });
-const optionText = css({ flex: 1, fontSize: '2.9vh' });
-const optionIcon = css({ flex: 1, textAlign: 'right' });
-const icon = css({ width: '5vh', height: '5vh' });
-const description = css({ padding: '15% 0 10% 0' });
+const option = css({ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '0 3% 0 3%', height: '9%' });
+const optionText = css({ flex: 4, fontSize: '3.25vh' });
+const optionIcon = css({ flex: 1, textAlign: 'right', marginBottom: '-1vh' });
+const icon = css({ width: '5.5vh', height: '5.5vh' });
+const description = css({ padding: '10% 0 10% 0', width: '100%', height: '45%' });
 
-type SlideableProps = { open: boolean; close: () => void; setCode: () => void };
+type SlideableProps = { state: Option; setOption: (option: Option) => void; setCode: () => void };
 
-export const Slideable = ({ open, close, setCode }: SlideableProps) => {
-  const handlers = useSwipeable({ onSwipedRight: close });
+export const Slideable = ({ state, setOption, setCode }: SlideableProps) => {
+  const handlers = useSwipeable({ onSwipedRight: () => setOption(closedOptions) });
   const dispatch = useDispatch();
-  const containerCss = container(open);
+  const containerCss = container(state.show);
 
   const fnWithClose = (fn: () => void) => {
-    close();
-    fn();
+    setOption(closedOptions);
+    if (fn != undefined) fn();
   };
 
   return (
@@ -53,34 +53,38 @@ export const Slideable = ({ open, close, setCode }: SlideableProps) => {
       <div css={header}>
         <span css={headerTitle}>Options</span>
         <span css={headerIcon}>
-          <CloseSvg onClick={close} css={closeIcon} />
+          <CloseSvg onClick={() => setOption(closedOptions)} css={closeIcon} />
         </span>
       </div>
-      <div css={option}>
-        <span css={optionText}>Tutorial</span>
-        <span css={optionIcon}>
-          <Next css={icon} />
-        </span>
-      </div>
-      <div css={option} onClick={() => fnWithClose(setCode)}>
-        <span css={optionText}>Algorithm Code</span>
-        <span css={optionIcon}>
-          <Next css={icon} />
-        </span>
-      </div>
-      <div css={option} onClick={() => fnWithClose(() => dispatch(setMaze()))}>
-        <span css={optionText}>Generate Maze</span>
-        <span css={optionIcon}>
-          <Next css={icon} />
-        </span>
-      </div>
-      <div css={option}>
-        <span css={optionText}>Theme</span>
-        <span css={optionIcon}>
-          <Next css={icon} />
-        </span>
-      </div>
-      <Description size="2.5vh" spacing="4vh" styles={description} />
+      {!state.secondary && (
+        <>
+          <MenuOption name="Choose Algorithm" clickFn={() => setOption(secondaryOptions)} />
+          <MenuOption name="Generate Maze" clickFn={() => fnWithClose(() => dispatch(setMaze()))} />
+          <MenuOption name="Tutorial" />
+          <MenuOption name="Algorithm Code" clickFn={() => fnWithClose(setCode)} />
+          <MenuOption name="Theme" />
+          <Description size="2.75vh" spacing="8vh" styles={description} />
+        </>
+      )}
+      {state.secondary && (
+        <>
+          {Object.entries(algorithms).map(([key, { name }]) => {
+            const fn = () => fnWithClose(() => dispatch(setAlgorithm(key as AlgorithmKey)));
+            return <MenuOption key={key} name={name} clickFn={fn} />;
+          })}
+        </>
+      )}
     </div>
   );
 };
+
+function MenuOption({ name, clickFn }: { name: string; clickFn?: () => void }) {
+  return (
+    <div css={option} onClick={clickFn}>
+      <span css={optionText}>{name}</span>
+      <span css={optionIcon}>
+        <Next css={icon} />
+      </span>
+    </div>
+  );
+}

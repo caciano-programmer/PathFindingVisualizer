@@ -3,14 +3,14 @@
 import { AlgorithmKey } from '../algorithms/algorithms';
 import { nanoid } from 'nanoid';
 
-export const ROWS = 19;
-export const COLUMNS = 45;
-export const START = 409;
-export const END = 445;
-export const MOBILE_ROW = 16;
-export const MOBILE_COL = 16;
-export const M_START = 17;
-export const M_END = 238;
+export const ROWS = 23;
+export const COLUMNS = 51;
+export const START = 566;
+export const END = 606;
+export const MOBILE_ROW = 17;
+export const MOBILE_COL = 17;
+export const M_START = 18;
+export const M_END = 270;
 
 export const DESKTOP = '@media(min-width: 1000px)';
 export const MOBILE = '@media(max-width: 999px)';
@@ -43,3 +43,8 @@ export const InitialState: State = {
 
 export const Small_Weight_Cost = 5;
 export const Large_Weight_Cost = 13;
+
+export type Option = { show: boolean; secondary: boolean };
+export const closedOptions: Option = { show: false, secondary: false };
+export const primaryOptions: Option = { show: true, secondary: false };
+export const secondaryOptions: Option = { show: true, secondary: true };

@@ -18,7 +18,7 @@ const container = css({
   height: '100%',
   display: 'grid',
   [DESKTOP]: { gridTemplateRows: '2.25fr 17fr', gridTemplateColumns: '1.75fr 17fr' },
-  [MOBILE]: { gridTemplateRows: '1.75fr 15fr 2.5fr', gridTemplateColumns: '1fr' },
+  [MOBILE]: { gridTemplateRows: '1.75fr 15fr 2fr', gridTemplateColumns: '1fr' },
 });
 const header = css({ gridColumn: 'span 2' });
 const sidebar = css({ [MOBILE]: { display: 'none' } });
