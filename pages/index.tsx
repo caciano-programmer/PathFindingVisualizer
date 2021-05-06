@@ -10,32 +10,37 @@ import { Footer } from '../components/mobile/footer';
 import { MOBILE, DESKTOP, DesktopDimension, MobileDimension } from '../config/config';
 import { setDimension } from '../redux/store';
 import Table from '../components/table/table';
+import { Dark, Light, MyTheme, Theme } from '../theme/theme';
 
 const DynamicCode = dynamic(() => import('../components/code/code'));
 
-const container = css({
-  width: '100%',
-  height: '100%',
-  display: 'grid',
-  [DESKTOP]: { gridTemplateRows: '2.25fr 17fr', gridTemplateColumns: '1.75fr 17fr' },
-  [MOBILE]: { gridTemplateRows: '1.75fr 15fr 2fr', gridTemplateColumns: '1fr' },
-});
+const containerCss = (theme: Theme) =>
+  css({
+    width: '100%',
+    height: '100%',
+    display: 'grid',
+    backgroundColor: theme.background,
+    [DESKTOP]: { gridTemplateRows: '2.25fr 17fr', gridTemplateColumns: '1.75fr 17fr' },
+    [MOBILE]: { gridTemplateRows: '1.75fr 15fr 2fr', gridTemplateColumns: '1fr' },
+  });
 const header = css({ gridColumn: 'span 2' });
 const sidebar = css({ [MOBILE]: { display: 'none' } });
 const tableCss = css({ [DESKTOP]: { gridColumn: 'span 1' }, [MOBILE]: { gridColumn: 'span 2' } });
 const footer = css({ gridColumn: 'span 2', minHeight: 0, [DESKTOP]: { display: 'none' } });
 
 export default function Home() {
-  const dispatch = useDispatch();
+  const [theme, toggleTheme] = useState(Light);
   const [code, setCode] = useState(false);
+  const dispatch = useDispatch();
+  const container = containerCss(theme);
 
   const closeCode = React.useCallback(() => setCode(false), []);
   const openCode = React.useCallback(() => setCode(true), []);
+  const switchTheme = React.useCallback(() => toggleTheme(state => (state === Dark ? Light : Dark)), []);
 
   useEffect(() => {
     function resize() {
-      if (window.innerWidth <= 1000 && ('ontouchstart' in window || navigator.maxTouchPoints > 0))
-        dispatch(setDimension(MobileDimension));
+      if (window.innerWidth <= 1000) dispatch(setDimension(MobileDimension));
       else dispatch(setDimension(DesktopDimension));
     }
     resize();
@@ -44,14 +49,14 @@ export default function Home() {
   }, []);
 
   return (
-    <>
+    <MyTheme.Provider value={theme}>
       <DynamicCode isOpen={code} close={closeCode} />
       <div css={container}>
-        <Header styles={header} setCode={openCode} />
-        <Sidebar styles={sidebar} setCode={openCode} />
+        <Header styles={header} setTheme={switchTheme} setCode={openCode} />
+        <Sidebar styles={sidebar} setTheme={switchTheme} setCode={openCode} />
         <Table styles={tableCss} />
         <Footer styles={footer} />
       </div>
-    </>
+    </MyTheme.Provider>
   );
 }

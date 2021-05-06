@@ -33,6 +33,8 @@ function HtmlHead() {
       <title>Graph Visualizer</title>
       <meta name="description" content="App to visualize path finding algorithms." />
       <link rel="icon" href="/favicon-16x16.png" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" />
+      <link href="https://fonts.googleapis.com/css2?family=Lobster+Two:ital@0;1&display=swap" rel="stylesheet" />
     </Head>
   );
 }

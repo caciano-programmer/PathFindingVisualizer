@@ -1,23 +1,27 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { css, SerializedStyles } from '@emotion/react';
 import { useDrag, useDrop } from 'react-dnd';
 import Start from '../../public/start.svg';
 import End from '../../public/end.svg';
 import KettlebellSvg from '../../public/kettlebell.svg';
 import { Cell as CellType, cellColor, CellIndexParam, DragItem, DragItemList, isWeightType } from './table-utils';
+import { MyTheme, Theme } from '../../theme/theme';
+import { DESKTOP, MOBILE } from '../../config/config';
 
 const fullSize = css({ width: '100%', height: '100%' });
-const icon = css({ ...fullSize });
+const startPointCss = (theme: Theme) => css({ fill: theme.secondary });
 const grabItem = (isDragItem: boolean) => css({ cursor: isDragItem ? 'grab' : 'default' });
-const getCellCss = (type: CellType, animate: boolean) =>
+const getCellCss = (type: CellType, theme: Theme, animate: boolean) =>
   css({
-    borderRight: '1px solid rgba(0,0,0,0.25)',
-    borderTop: '1px solid rgba(0,0,0,0.25)',
-    backgroundColor: `${cellColor(type)}`,
+    borderRight: `1px solid ${theme.grid}`,
+    borderTop: `1px solid ${theme.grid}`,
+    backgroundColor: `${cellColor(type, theme)}`,
     transition: animate ? `background-color 1.5s` : '',
   });
+const weight = (isSmall: boolean, theme: Theme) =>
+  css({ [DESKTOP]: { fill: isSmall ? theme.smallWeight : theme.largeWeight }, [MOBILE]: { fill: theme.main } });
 
 type CellProps = {
   value: number;
@@ -27,12 +31,15 @@ type CellProps = {
 };
 
 const Cell = ({ value, type, setCell, style }: CellProps) => {
-  const { isWeight } = isWeightType(type);
-  const cellCss = getCellCss(type, type !== CellType.CLEAR && type !== CellType.WALL);
+  const { isWeight, small } = isWeightType(type);
+  const theme = useContext(MyTheme);
+
+  const cellCss = getCellCss(type, theme, type !== CellType.CLEAR && type !== CellType.WALL);
   const grabCss = grabItem(isWeight || type === CellType.START || type === CellType.END);
+  const weightCss = weight(small, theme);
+  const startPoint = startPointCss(theme);
 
   const dragItem = useDrag({ type, item: { type, value } })[1];
-
   const drop = useDrop({
     accept: DragItemList,
     drop: ({ type, value: previous }: DragItem) =>
@@ -76,9 +83,9 @@ const Cell = ({ value, type, setCell, style }: CellProps) => {
     >
       {DragItemList.includes(type) && (
         <div ref={dragItem} css={fullSize} draggable={true} onDragStart={onDragStart}>
-          {type === CellType.START && <Start css={icon} preserveAspectRatio="none" />}
-          {type === CellType.END && <End css={icon} preserveAspectRatio="none" />}
-          {isWeight && <KettlebellSvg css={icon} preserveAspectRatio="none" />}
+          {type === CellType.START && <Start css={[fullSize, startPoint]} preserveAspectRatio="none" />}
+          {type === CellType.END && <End css={[fullSize, startPoint]} preserveAspectRatio="none" />}
+          {isWeight && <KettlebellSvg css={[fullSize, weightCss]} preserveAspectRatio="none" />}
         </div>
       )}
     </div>

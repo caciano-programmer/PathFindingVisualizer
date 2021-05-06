@@ -1,30 +1,32 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { css, SerializedStyles } from '@emotion/react';
 import { MemoizedCell } from './cell';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectAlgorithm, selectDimensions, selectMaze, selectSessionId, selectStatus } from '../../redux/store';
 import { COLUMNS, DESKTOP, MOBILE, MOBILE_COL, MOBILE_ROW, Progress, ROWS } from '../../config/config';
 import { animations, Cell, CellIndexParam, cellsUpdate } from './table-utils';
+import { MyTheme, Theme } from '../../theme/theme';
 
-const grid = css({
-  width: 'calc(100% - 2vw)',
-  height: 'calc(100% - 2vw)',
-  borderLeft: '1px solid rgba(0,0,0,0.25)',
-  borderBottom: '1px solid rgba(0,0,0,0.25)',
-  margin: '1vw',
-  overflow: 'hidden',
-  display: 'grid',
-  [DESKTOP]: {
-    gridTemplateRows: `repeat(${ROWS}, minmax(0, 1fr))`,
-    gridTemplateColumns: `repeat(${COLUMNS}, minmax(0, 1fr))`,
-  },
-  [MOBILE]: {
-    gridTemplateRows: `repeat(${MOBILE_ROW}, minmax(0, 1fr))`,
-    gridTemplateColumns: `repeat(${MOBILE_COL}, minmax(0, 1fr))`,
-  },
-});
+const gridCss = (theme: Theme) =>
+  css({
+    width: 'calc(100% - 2vw)',
+    height: 'calc(100% - 2vw)',
+    borderLeft: `1px solid ${theme.grid}`,
+    borderBottom: `1px solid ${theme.grid}`,
+    margin: '1vw',
+    overflow: 'hidden',
+    display: 'grid',
+    [DESKTOP]: {
+      gridTemplateRows: `repeat(${ROWS}, minmax(0, 1fr))`,
+      gridTemplateColumns: `repeat(${COLUMNS}, minmax(0, 1fr))`,
+    },
+    [MOBILE]: {
+      gridTemplateRows: `repeat(${MOBILE_ROW}, minmax(0, 1fr))`,
+      gridTemplateColumns: `repeat(${MOBILE_COL}, minmax(0, 1fr))`,
+    },
+  });
 const mobile = css({ [MOBILE]: { display: 'none' } });
 
 const InitialTableState = (start: number, end: number): Cell[] =>
@@ -40,6 +42,9 @@ export default function Table({ styles }: { styles: SerializedStyles }) {
   const initialState = InitialTableState(start, end);
   const [cells, setCells] = useState(initialState);
   const dispatch = useDispatch();
+  const theme = useContext(MyTheme);
+
+  const grid = gridCss(theme);
 
   useEffect(() => setCells(InitialTableState(start, end)), [start, end]);
   useEffect(() => setCells(initialState.map((el, index) => (mazeSet.has(index) ? Cell.WALL : el))), [mazeSet]);

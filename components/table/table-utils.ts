@@ -3,6 +3,7 @@ import { AlgorithmKey, algorithms, Explored } from '../../algorithms/algorithms'
 import { buildAdjacencyList } from '../../algorithms/utils';
 import { Large_Weight_Cost, Progress, Small_Weight_Cost } from '../../config/config';
 import { setStatus } from '../../redux/store';
+import { Theme } from '../../theme/theme';
 
 export enum Cell {
   CLEAR = 'clear',
@@ -48,21 +49,20 @@ export function cellsUpdate(array: Cell[], index: CellIndexParam, value: Cell) {
   return copy;
 }
 
-// TODO delete after theme created
-export function cellColor(cell: Cell) {
+export function cellColor(cell: Cell, theme: Theme) {
   switch (cell) {
     case Cell.WEIGHT_P_LG:
     case Cell.WEIGHT_P_SM:
     case Cell.PATH:
-      return 'green';
+      return theme.path;
     case Cell.WALL:
-      return 'blue';
+      return theme.grid;
     case Cell.WEIGHT_S_LG:
     case Cell.WEIGHT_S_SM:
     case Cell.SEARCHED:
-      return 'orange';
+      return theme.searched;
     default:
-      return 'white';
+      return 'inherit';
   }
 }
 
@@ -146,7 +146,7 @@ function setPathAnimations(
       const timeout = setTimeout(() => {
         updateCell(visited[index], Cell.SEARCHED, index === 0);
         if (index === visited.length - 1) resolve();
-      }, index * 15);
+      }, index * 25);
       timeouts.push(timeout);
     }
   });

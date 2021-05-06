@@ -86,7 +86,7 @@ export const codeText = `
       closed.set(node.key, node);
       if (node.key === dest) return { length: node.movement, path: node.path };
       for ( const adjacent of list.get(node.key)!.filter(val => !closed.has(val)) ) {
-        const value = heuristic(adjacent, dest, col);
+        const value = heuristic (adjacent, dest, col);
         const movement = node.movement + (weights.has(adjacent) ? weights.get(adjacent)! : 1);
         const cost = movement + value;
         const betterInOpen = open.has(adjacent) && open.get(adjacent)!.cost <= cost;
