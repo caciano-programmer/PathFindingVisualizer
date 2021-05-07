@@ -21,7 +21,7 @@ export type Theme = {
   options: string;
   code: { separators: string; functions: string; keywords: string; comments: string; others: string };
   scrollbar: { thumb: string; track: string };
-  animation: { startColor: string; midColor: string; finalColor: string };
+  animation: { startColor: string; midColor: string; finalColor: string; path: string };
 };
 
 export const Light: Theme = {
@@ -42,7 +42,7 @@ export const Light: Theme = {
   options: 'rgba(224, 224, 224, .975)',
   code: { keywords: lightMain, comments: '#cccccc', separators: '#6330bc', functions: '#8191f0', others: '#282828' },
   scrollbar: { thumb: lightMain, track: 'rgba(8, 58, 140, .2)' },
-  animation: { startColor: lightMain, midColor: '#410093', finalColor: 'rgba(65, 0, 147, .2)' },
+  animation: { startColor: lightMain, midColor: '#410093', finalColor: 'rgba(65, 0, 147, .2)', path: '#f0ce78' },
 };
 
 export const Dark: Theme = {
@@ -63,7 +63,7 @@ export const Dark: Theme = {
   options: 'rgba(33, 33, 33, .9)',
   code: { keywords: darkMain, comments: '#3d3d3d', separators: '#5e5e5e', functions: '#9bd5ff', others: 'white' },
   scrollbar: { thumb: '#004ba0', track: 'rgba(0, 75, 160, .2)' },
-  animation: { startColor: '#002571', midColor: '#410093', finalColor: '#9f98ed' },
+  animation: { startColor: '#002571', midColor: '#410093', finalColor: '#9f98ed', path: '#F9D77E' },
 };
 
 export const MyTheme = React.createContext(Light);

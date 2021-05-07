@@ -16,13 +16,13 @@ const iconCss = (theme: Theme) => css({ height: '10vh', width: '10vh', fill: the
 const initialize = css({ flex: 1.5, height: '50%' });
 
 export const Footer = ({ styles }: { styles: SerializedStyles }) => {
-  const dragWeight = useDrag({ type: Cell.WEIGHT_LG, item: { type: Cell.WEIGHT_LG } })[1];
+  const dragWeight = useDrag({ type: Cell.WEIGHT_SM, item: { type: Cell.WEIGHT_SM } })[1];
   const dispatch = useDispatch();
   const theme = useContext(MyTheme);
   const icon = iconCss(theme);
 
   const dragStart = (event: React.DragEvent<HTMLDivElement>) => {
-    event.dataTransfer.setData('text/plain', JSON.stringify({ movedType: Cell.WEIGHT_LG }));
+    event.dataTransfer.setData('text/plain', JSON.stringify({ movedType: Cell.WEIGHT_SM }));
   };
 
   return (

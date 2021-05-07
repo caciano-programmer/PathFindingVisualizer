@@ -27,8 +27,8 @@ export const StartButton = ({ fontSize, styles }: { fontSize?: string; styles?: 
   const buttonCss = button(fontSize, theme);
 
   return (
-    <div css={[buttonCss, styles]} onClick={() => dispatch(setStatus(Progress.IN_PROGESS))}>
+    <button type="button" css={[buttonCss, styles]} onClick={() => dispatch(setStatus(Progress.IN_PROGESS))}>
       <span>Visualize</span>
-    </div>
+    </button>
   );
 };

@@ -9,6 +9,10 @@ export enum Cell {
   CLEAR = 'clear',
   START = 'start',
   END = 'end',
+  START_SEARCHED = 'startSearched',
+  END_SEARCHED = 'endSearched',
+  START_PATH = 'startPath',
+  END_PATH = 'endPath',
   WALL = 'wall',
   WEIGHT_SM = 'weightSmall',
   WEIGHT_LG = 'weightLarge',
@@ -23,6 +27,10 @@ export enum Cell {
 const draggableCells = [
   Cell.END,
   Cell.START,
+  Cell.START_SEARCHED,
+  Cell.END_SEARCHED,
+  Cell.START_PATH,
+  Cell.END_PATH,
   Cell.WEIGHT_SM,
   Cell.WEIGHT_LG,
   Cell.WEIGHT_S_LG,
@@ -30,7 +38,6 @@ const draggableCells = [
   Cell.WEIGHT_P_LG,
   Cell.WEIGHT_P_SM,
 ] as const;
-
 export const DragItemList: Cell[] = [...draggableCells];
 export type DragItem = { type: typeof draggableCells[number]; value?: number };
 export type CellIndexParam = number | [number, number];
@@ -39,7 +46,7 @@ export type CellIndexParam = number | [number, number];
 export function cellsUpdate(array: Cell[], index: CellIndexParam, value: Cell) {
   const copy = [...array];
   if (Array.isArray(index)) {
-    const { searched, path } = isWeightType(copy[index[0]]);
+    const { searched, path } = isDragType(copy[index[0]]);
     const original = searched ? Cell.SEARCHED : path ? Cell.PATH : Cell.CLEAR;
     copy[index[0]] = original;
     copy[index[1]] = value;
@@ -51,6 +58,8 @@ export function cellsUpdate(array: Cell[], index: CellIndexParam, value: Cell) {
 
 export function cellColor(cell: Cell, theme: Theme) {
   switch (cell) {
+    case Cell.START_PATH:
+    case Cell.END_PATH:
     case Cell.WEIGHT_P_LG:
     case Cell.WEIGHT_P_SM:
     case Cell.PATH:
@@ -59,6 +68,8 @@ export function cellColor(cell: Cell, theme: Theme) {
       return theme.grid;
     case Cell.WEIGHT_S_LG:
     case Cell.WEIGHT_S_SM:
+    case Cell.START_SEARCHED:
+    case Cell.END_SEARCHED:
     case Cell.SEARCHED:
       return theme.searched;
     default:
@@ -91,6 +102,15 @@ export function animations(
   return timeoutIds;
 }
 
+type StartPoint = { isPoint: boolean; start: boolean; end: boolean; searched: boolean; path: boolean };
+type WeightType = { isWeight: boolean; small: boolean; large: boolean; searched: boolean; path: boolean };
+export function isDragType(inputCell: Cell): WeightType & StartPoint & { baseType: Cell } {
+  const { isWeight, small, large, searched: wS, path: wP } = isWeightType(inputCell);
+  const { isPoint, start, end, searched: sS, path: sP } = isStartPoint(inputCell);
+  const baseType = isWeight ? (small ? Cell.WEIGHT_SM : Cell.WEIGHT_LG) : start ? Cell.START : Cell.END;
+  return { isPoint, isWeight, small, large, start, end, searched: sS || wS, path: sP || wP, baseType };
+}
+
 // returns the index of start, end, and every location of a weight, every location of walls
 function getPoints(cells: Cell[]) {
   const weights = new Map<number, typeof Small_Weight_Cost | typeof Large_Weight_Cost>();
@@ -98,11 +118,11 @@ function getPoints(cells: Cell[]) {
   let startPoint, endPoint;
 
   for (let index = 0; index < cells.length; index++) {
-    const { isWeight, small, large } = isWeightType(cells[index]);
-    if (cells[index] === Cell.START) startPoint = index;
-    else if (cells[index] === Cell.END) endPoint = index;
-    else if (isWeight && small) weights.set(index, Small_Weight_Cost);
-    else if (isWeight && large) weights.set(index, Large_Weight_Cost);
+    const { small, large, start, end } = isDragType(cells[index]);
+    if (start) startPoint = index;
+    else if (end) endPoint = index;
+    else if (small) weights.set(index, Small_Weight_Cost);
+    else if (large) weights.set(index, Large_Weight_Cost);
     else if (cells[index] === Cell.WALL) walls.add(index);
   }
 
@@ -118,26 +138,23 @@ function setPathAnimations(
   setCells: Dispatch<SetStateAction<Cell[]>>,
   dispatch: Dispatch<any>,
 ) {
-  const cleared: Cell[] = cells.map(cell => {
-    const { isWeight, searched, path, small, large } = isWeightType(cell);
-    if (cell === Cell.PATH || cell === Cell.SEARCHED) return Cell.CLEAR;
-    else if (isWeight && (searched || path) && small) return Cell.WEIGHT_SM;
-    else if (isWeight && (searched || path) && large) return Cell.WEIGHT_LG;
-    return cell;
-  });
   const timeouts: NodeJS.Timeout[] = [];
-  const start = cells.indexOf(Cell.START);
-  const end = cells.indexOf(Cell.END);
   const { searchTime, pathTime } = getSearchAnimationLength(visited.length, path.length);
+  const cleared = clear(cells);
 
   const updateCell = (node: number, type: Cell, first = false) =>
     setCells(state => {
       const copy = first ? cleared : [...state];
-      if (node !== start && node !== end) {
-        const { isWeight, small } = isWeightType(copy[node]);
-        if (type === Cell.SEARCHED)
-          copy[node] = isWeight ? (small ? Cell.WEIGHT_S_SM : Cell.WEIGHT_S_LG) : Cell.SEARCHED;
-        else copy[node] = isWeight ? (small ? Cell.WEIGHT_P_SM : Cell.WEIGHT_P_LG) : Cell.PATH;
+      const { isWeight, small, isPoint, start } = isDragType(copy[node]);
+      if (type === Cell.SEARCHED) {
+        if (isPoint) copy[node] = start ? Cell.START_SEARCHED : Cell.END_SEARCHED;
+        else if (isWeight) copy[node] = small ? Cell.WEIGHT_S_SM : Cell.WEIGHT_S_LG;
+        else copy[node] = Cell.SEARCHED;
+      }
+      if (type === Cell.PATH) {
+        if (isPoint) copy[node] = start ? Cell.START_PATH : Cell.END_PATH;
+        else if (isWeight) copy[node] = small ? Cell.WEIGHT_P_SM : Cell.WEIGHT_P_LG;
+        else copy[node] = Cell.PATH;
       }
       return copy;
     });
@@ -166,32 +183,45 @@ function setPathAnimations(
   return timeouts;
 }
 
-type WeightType = { isWeight: boolean; small: boolean; large: boolean; searched: boolean; path: boolean; cell: Cell };
-export function isWeightType(cell: Cell): WeightType {
-  const isWeight =
-    cell === Cell.WEIGHT_SM ||
-    cell === Cell.WEIGHT_LG ||
-    cell === Cell.WEIGHT_S_SM ||
-    cell === Cell.WEIGHT_S_LG ||
-    cell === Cell.WEIGHT_P_SM ||
-    cell === Cell.WEIGHT_P_LG;
-
-  const small = cell === Cell.WEIGHT_SM || cell === Cell.WEIGHT_S_SM || cell === Cell.WEIGHT_P_SM;
-  const large = isWeight && !small;
-  const searched = cell === Cell.WEIGHT_S_LG || cell === Cell.WEIGHT_S_SM;
-  const path = cell === Cell.WEIGHT_P_SM || cell === Cell.WEIGHT_P_LG;
-
-  return { isWeight, small, large, searched, path, cell };
-}
-
 function getSearchAnimationLength(searchLength: number, pathLength: number): { searchTime: number; pathTime: number } {
   const MaxLength = ROWS * COLUMNS;
   let searchTime = 100;
   let pathTime = 125;
-  if (searchLength > MaxLength * 0.75) searchTime = 25;
-  if (searchLength > MaxLength * 0.5) searchTime = 40;
-  if (searchLength > MaxLength * 0.25) searchTime = 60;
-  if (searchLength > MaxLength * 0.1) searchTime = 80;
   if (pathLength > MaxLength * 0.3) pathTime = 50;
+  else if (searchLength > MaxLength * 0.75) searchTime = 25;
+  else if (searchLength > MaxLength * 0.5) searchTime = 40;
+  else if (searchLength > MaxLength * 0.25) searchTime = 60;
+  else if (searchLength > MaxLength * 0.1) searchTime = 80;
   return { searchTime, pathTime };
+}
+
+function clear(cells: Cell[]): Cell[] {
+  return cells.map(cell => {
+    if (cell === Cell.PATH || cell === Cell.SEARCHED) return Cell.CLEAR;
+    const { searched, path, small, large, start, end } = isDragType(cell);
+    if (!(searched || path)) return cell;
+    else if (small) return Cell.WEIGHT_SM;
+    else if (large) return Cell.WEIGHT_LG;
+    else if (start) return Cell.START;
+    else if (end) return Cell.END;
+    return cell;
+  });
+}
+
+function isWeightType(cell: Cell): WeightType {
+  const large = cell === Cell.WEIGHT_LG || cell === Cell.WEIGHT_S_LG || cell === Cell.WEIGHT_P_LG;
+  const small = cell === Cell.WEIGHT_SM || cell === Cell.WEIGHT_S_SM || cell === Cell.WEIGHT_P_SM;
+  const isWeight = small || large;
+  const searched = cell === Cell.WEIGHT_S_LG || cell === Cell.WEIGHT_S_SM;
+  const path = cell === Cell.WEIGHT_P_SM || cell === Cell.WEIGHT_P_LG;
+  return { isWeight, small, large, searched, path };
+}
+
+function isStartPoint(cell: Cell): StartPoint {
+  const start = cell === Cell.START || cell === Cell.START_SEARCHED || cell === Cell.START_PATH;
+  const end = cell === Cell.END || cell === Cell.END_SEARCHED || cell === Cell.END_PATH;
+  const isPoint = start || end;
+  const searched = cell === Cell.START_SEARCHED || cell === Cell.END_SEARCHED;
+  const path = cell === Cell.START_PATH || cell === Cell.END_PATH;
+  return { isPoint, start, end, searched, path };
 }

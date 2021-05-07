@@ -6,11 +6,17 @@ import { useDrag, useDrop } from 'react-dnd';
 import Start from '../../public/start.svg';
 import End from '../../public/end.svg';
 import KettlebellSvg from '../../public/kettlebell.svg';
-import { Cell as CellType, cellColor, CellIndexParam, DragItem, DragItemList, isWeightType } from './table-utils';
+import { Cell as CellType, cellColor, CellIndexParam, DragItem, DragItemList, isDragType } from './table-utils';
 import { MyTheme, Theme } from '../../theme/theme';
 import { DESKTOP, MOBILE } from '../../config/config';
 
 const fullSize = css({ width: '100%', height: '100%' });
+const glowAnimation = ({ animation: { path } }: Theme) =>
+  keyframes({
+    '0%': { borderRadius: '50%', filter: `drop-shadow(0 0 0 ${path})`, boxShadow: `0 0 1px 1px ${path}` },
+    '75%': { filter: `drop-shadow(0 0 max(5vw, 4vh) ${path})`, boxShadow: `0 0 15px 1px ${path}` },
+    '100%': { filter: `drop-shadow(0 0 max(1vw, 1vh) ${path})`, borderRadius: '50%', boxShadow: `0 0 0 0 ${path}` },
+  });
 const searchedAnimation = ({ animation }: Theme) =>
   keyframes({
     '0%': { width: '25%', height: '25%', backgroundColor: animation.startColor, borderRadius: '25%' },
@@ -22,7 +28,10 @@ const searchedCss = (theme: Theme) => {
   const animation = searchedAnimation(theme);
   return css({ animation: `${animation} 1s` });
 };
-const startPointCss = (theme: Theme) => css({ fill: theme.secondary });
+const startPointCss = (theme: Theme, path: boolean) => {
+  const animation = glowAnimation(theme);
+  return css({ fill: path ? theme.animation.path : theme.secondary, animation: path ? `${animation} 2s` : '' });
+};
 const grabItem = (isDragItem: boolean) => css({ cursor: isDragItem ? 'grab' : 'default' });
 const getCellCss = (type: CellType, theme: Theme, animate: boolean) =>
   css({
@@ -45,20 +54,22 @@ type CellProps = {
 };
 
 const Cell = ({ value, type, setCell, style }: CellProps) => {
-  const { isWeight, small } = isWeightType(type);
+  const { isWeight, small, start, end } = isDragType(type);
   const theme = useContext(MyTheme);
 
   const cellCss = getCellCss(type, theme, type !== CellType.CLEAR && type !== CellType.WALL);
   const grabCss = grabItem(isWeight || type === CellType.START || type === CellType.END);
   const weightCss = weight(small, theme);
-  const startPoint = startPointCss(theme);
+  const startPoint = startPointCss(theme, type === CellType.START_PATH || type === CellType.END_PATH);
   const searched = searchedCss(theme);
 
   const dragItem = useDrag({ type, item: { type, value } })[1];
   const drop = useDrop({
     accept: DragItemList,
-    drop: ({ type, value: previous }: DragItem) =>
-      previous === undefined ? setCell(value, type) : setCell([previous, value], type),
+    drop: ({ type, value: previous }: DragItem) => {
+      const { baseType } = isDragType(type);
+      return previous === undefined ? setCell(value, type) : setCell([previous, value], baseType);
+    },
     canDrop: () => type === CellType.CLEAR,
   })[1];
 
@@ -73,9 +84,8 @@ const Cell = ({ value, type, setCell, style }: CellProps) => {
     }
   };
   const onDragStart = (event: React.DragEvent<HTMLDivElement>) => {
-    const { isWeight, small } = isWeightType(type);
-    const movedType = isWeight ? (small ? CellType.WEIGHT_SM : CellType.WEIGHT_LG) : type;
-    const data = { movedVal: value, movedType };
+    const { baseType } = isDragType(type);
+    const data = { movedVal: value, movedType: baseType };
     event.dataTransfer.setData('text/plain', JSON.stringify(data));
   };
   const allowDrop = (event: React.DragEvent<HTMLDivElement>) => event.preventDefault();
@@ -98,8 +108,8 @@ const Cell = ({ value, type, setCell, style }: CellProps) => {
     >
       {DragItemList.includes(type) && (
         <div ref={dragItem} css={fullSize} draggable={true} onDragStart={onDragStart}>
-          {type === CellType.START && <Start css={[fullSize, startPoint]} preserveAspectRatio="none" />}
-          {type === CellType.END && <End css={[fullSize, startPoint]} preserveAspectRatio="none" />}
+          {start && <Start css={[fullSize, startPoint]} preserveAspectRatio="none" />}
+          {end && <End css={[fullSize, startPoint]} preserveAspectRatio="none" />}
           {isWeight && <KettlebellSvg css={[fullSize, weightCss]} preserveAspectRatio="none" />}
         </div>
       )}
