@@ -19,7 +19,13 @@ const reducer = createReducer(InitialState, builder =>
       state.maze = randomMaze(rows, columns);
     })
     .addCase(setDimension, (state, { payload }) => ({ ...state, dimensions: payload }))
-    .addCase(resetState, ({ dimensions }) => ({ ...InitialState, sessionId: nanoid(), maze: [], dimensions })),
+    .addCase(resetState, ({ dimensions, algorithm }) => ({
+      ...InitialState,
+      sessionId: nanoid(),
+      maze: [],
+      dimensions,
+      algorithm,
+    })),
 );
 
 export const selectStatus = ({ status }: State) => status;

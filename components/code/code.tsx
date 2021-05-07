@@ -8,6 +8,13 @@ import { DESKTOP, MOBILE } from '../../config/config';
 import { Dark, Light, MyTheme, Theme } from '../../theme/theme';
 
 const fullSize = { width: '100%', height: '100%' };
+const scrollbarCss = ({ scrollbar }: Theme) =>
+  css({
+    '&::-webkit-scrollbar': { width: '.6vw', height: '.6vw' },
+    '&::-webkit-scrollbar-thumb': { background: scrollbar.thumb, borderRadius: '.3vw' },
+    '&::-webkit-scrollbar-track': { background: scrollbar.track, borderRadius: '.3vw', margin: '1vw .5vw .5vw 1vw' },
+    '&::-webkit-scrollbar-corner': { backgroundColor: 'inherit' },
+  });
 const getWrapper = (visible: boolean) =>
   css({ position: 'fixed', top: visible ? 0 : '-100%', ...fullSize, transition: 'top .4s linear', zIndex: 2 });
 const headerCss = (theme: Theme) =>
@@ -73,6 +80,7 @@ const Code = ({ isOpen, close }: CodeProps) => {
   const header = headerCss(theme);
   const codeContainer = codeContainerCss(theme);
   const icon = iconCss(theme);
+  const scrollbar = scrollbarCss(theme);
 
   return (
     <div css={wrapper}>
@@ -82,7 +90,7 @@ const Code = ({ isOpen, close }: CodeProps) => {
           <CloseSvg css={icon} />
         </div>
       </div>
-      <div css={codeContainer}>
+      <div css={[codeContainer, scrollbar]}>
         <pre css={fullSize}>
           <code css={fullSize} dangerouslySetInnerHTML={{ __html: theme.isDark ? darkJsx : lightJsx }} />
         </pre>

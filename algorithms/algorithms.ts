@@ -68,13 +68,13 @@ function aStar(list: AdjacencyList, start: number, dest: number, col: number, we
     if (open.size() === 0) return { path: [], length: 0 };
     const node = open.deQueue()!;
     closed.set(node.key, node);
-    if (node.key === dest) return { length: node.movement, path: node.path };
     for (const adjacent of list.get(node.key)!.filter(val => !closed.has(val))) {
       const value = heuristic(adjacent, dest, col);
       const movement = node.movement + (weights.has(adjacent) ? weights.get(adjacent)! : 1);
       const cost = movement + value;
       const betterInOpen = open.has(adjacent) && open.get(adjacent)!.cost <= cost;
       if (!betterInOpen) open.set({ key: adjacent, movement, value, cost, path: [...node.path, adjacent] });
+      if (adjacent === dest) return { length: movement, path: [...node.path, adjacent] };
     }
     return fn();
   };

@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from 'react';
 import { AlgorithmKey, algorithms, Explored } from '../../algorithms/algorithms';
 import { buildAdjacencyList } from '../../algorithms/utils';
-import { Large_Weight_Cost, Progress, Small_Weight_Cost } from '../../config/config';
+import { COLUMNS, Large_Weight_Cost, Progress, ROWS, Small_Weight_Cost } from '../../config/config';
 import { setStatus } from '../../redux/store';
 import { Theme } from '../../theme/theme';
 
@@ -128,6 +128,7 @@ function setPathAnimations(
   const timeouts: NodeJS.Timeout[] = [];
   const start = cells.indexOf(Cell.START);
   const end = cells.indexOf(Cell.END);
+  const { searchTime, pathTime } = getSearchAnimationLength(visited.length, path.length);
 
   const updateCell = (node: number, type: Cell, first = false) =>
     setCells(state => {
@@ -146,7 +147,7 @@ function setPathAnimations(
       const timeout = setTimeout(() => {
         updateCell(visited[index], Cell.SEARCHED, index === 0);
         if (index === visited.length - 1) resolve();
-      }, index * 25);
+      }, index * searchTime);
       timeouts.push(timeout);
     }
   });
@@ -157,7 +158,7 @@ function setPathAnimations(
       const timeout = setTimeout(() => {
         updateCell(path[index], Cell.PATH);
         if (index === path.length - 1) dispatch(setStatus(Progress.COMPLETED));
-      }, index * 100);
+      }, index * pathTime);
       timeouts.push(timeout);
     }
   });
@@ -181,4 +182,16 @@ export function isWeightType(cell: Cell): WeightType {
   const path = cell === Cell.WEIGHT_P_SM || cell === Cell.WEIGHT_P_LG;
 
   return { isWeight, small, large, searched, path, cell };
+}
+
+function getSearchAnimationLength(searchLength: number, pathLength: number): { searchTime: number; pathTime: number } {
+  const MaxLength = ROWS * COLUMNS;
+  let searchTime = 100;
+  let pathTime = 125;
+  if (searchLength > MaxLength * 0.75) searchTime = 25;
+  if (searchLength > MaxLength * 0.5) searchTime = 40;
+  if (searchLength > MaxLength * 0.25) searchTime = 60;
+  if (searchLength > MaxLength * 0.1) searchTime = 80;
+  if (pathLength > MaxLength * 0.3) pathTime = 50;
+  return { searchTime, pathTime };
 }

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useContext } from 'react';
-import { css, SerializedStyles } from '@emotion/react';
+import { css, SerializedStyles, keyframes } from '@emotion/react';
 import { useDrag, useDrop } from 'react-dnd';
 import Start from '../../public/start.svg';
 import End from '../../public/end.svg';
@@ -11,14 +11,28 @@ import { MyTheme, Theme } from '../../theme/theme';
 import { DESKTOP, MOBILE } from '../../config/config';
 
 const fullSize = css({ width: '100%', height: '100%' });
+const searchedAnimation = ({ animation }: Theme) =>
+  keyframes({
+    '0%': { width: '25%', height: '25%', backgroundColor: animation.startColor, borderRadius: '25%' },
+    '30%': { width: '50%', height: '50%', borderRadius: '50%' },
+    '60%': { width: '75%', height: '75%', backgroundColor: animation.midColor, borderRadius: '75%' },
+    '100%': { width: '100%', height: '100%', backgroundColor: animation.finalColor },
+  });
+const searchedCss = (theme: Theme) => {
+  const animation = searchedAnimation(theme);
+  return css({ animation: `${animation} 1s` });
+};
 const startPointCss = (theme: Theme) => css({ fill: theme.secondary });
 const grabItem = (isDragItem: boolean) => css({ cursor: isDragItem ? 'grab' : 'default' });
 const getCellCss = (type: CellType, theme: Theme, animate: boolean) =>
   css({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRight: `1px solid ${theme.grid}`,
     borderTop: `1px solid ${theme.grid}`,
     backgroundColor: `${cellColor(type, theme)}`,
-    transition: animate ? `background-color 1.5s` : '',
+    transition: type !== CellType.SEARCHED && animate ? `background-color 1s` : '',
   });
 const weight = (isSmall: boolean, theme: Theme) =>
   css({ [DESKTOP]: { fill: isSmall ? theme.smallWeight : theme.largeWeight }, [MOBILE]: { fill: theme.main } });
@@ -38,6 +52,7 @@ const Cell = ({ value, type, setCell, style }: CellProps) => {
   const grabCss = grabItem(isWeight || type === CellType.START || type === CellType.END);
   const weightCss = weight(small, theme);
   const startPoint = startPointCss(theme);
+  const searched = searchedCss(theme);
 
   const dragItem = useDrag({ type, item: { type, value } })[1];
   const drop = useDrop({
@@ -88,6 +103,7 @@ const Cell = ({ value, type, setCell, style }: CellProps) => {
           {isWeight && <KettlebellSvg css={[fullSize, weightCss]} preserveAspectRatio="none" />}
         </div>
       )}
+      {type === CellType.SEARCHED && <div css={searched} />}
     </div>
   );
 };
