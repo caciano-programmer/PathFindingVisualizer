@@ -11,7 +11,8 @@ import '../styles/globals.css';
 
 export default function MyApp({ Component }: AppProps) {
   useEffect(() => {
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+    const production = process.env.NODE_ENV === 'production';
+    if ('serviceWorker' in navigator && production) navigator.serviceWorker.register('/sw.js');
   }, []);
 
   return (

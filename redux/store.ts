@@ -33,9 +33,14 @@ const reducer = createReducer(InitialState, builder =>
 
 export const selectStatus = ({ status }: State) => status;
 export const selectAlgorithm = ({ algorithm }: State) => algorithm;
+export const selectAlgorithmDraggable = ({ algorithm }: State) => draggable(algorithm);
 export const selectSessionId = ({ sessionId }: State) => sessionId;
 export const selectMaze = ({ maze }: State) => maze;
 export const selectDimensions = ({ dimensions }: State) => dimensions;
 export const selectTutorial = ({ tutorial }: State) => tutorial;
 
 export const store = configureStore({ reducer, preloadedState: InitialState });
+
+function draggable(key: AlgorithmKey) {
+  return key === AlgorithmKey.aStar || key === AlgorithmKey.bellmanFord || key === AlgorithmKey.dijkstra;
+}

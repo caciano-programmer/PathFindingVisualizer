@@ -1,11 +1,11 @@
-import { css, keyframes, SerializedStyles } from '@emotion/react';
+import { css, SerializedStyles } from '@emotion/react';
 import KettlebellSvg from '../../public/icons/kettlebell.svg';
 import TutorialSvg from '../../public/icons/tutorial.svg';
 import LightThemeSvg from '../../public/icons/light.svg';
 import DarkThemeSvg from '../../public/icons/dark.svg';
 import CodeSvg from '../../public/icons/code.svg';
 import MazeSvg from '../../public/icons/maze.svg';
-import { selectTutorial, setMaze, setTutorialStatus } from '../../redux/store';
+import { selectAlgorithmDraggable, selectTutorial, setMaze, setTutorialStatus } from '../../redux/store';
 import { Cell } from '../table/table-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { Description } from '../shared/description';
@@ -25,9 +25,11 @@ const linkTextCss = (theme: Theme) =>
   css({ cursor: 'pointer', fontSize: '1.25vw', '&:hover': { textDecoration: 'underline' }, color: theme.main });
 const smallIconCss = (theme: Theme) => css({ width: '1.5vw', height: '1.5vw', marginBottom: '-4px', fill: theme.main });
 const weights = css({ textAlign: 'center', alignSelf: 'end' });
-const smallWeightCss = (theme: Theme) => css({ width: '3vw', height: '3vw', fill: theme.smallWeight });
-const largeWeightCss = (theme: Theme) => css({ width: '4vw', height: '4vw', fill: theme.largeWeight });
-const grabItem = css({ cursor: 'grab' });
+const smallWeightCss = (theme: Theme, draggable: boolean) =>
+  css({ width: '3vw', height: '3vw', fill: draggable ? theme.smallWeight : theme.disabled.primary });
+const largeWeightCss = (theme: Theme, draggable: boolean) =>
+  css({ width: '4vw', height: '4vw', fill: draggable ? theme.largeWeight : theme.disabled.primary });
+const grabItemCss = (draggable: boolean) => css({ cursor: draggable ? 'grab' : 'not-allowed' });
 const mazeCss = (theme: Theme) =>
   css({ textAlign: 'center', fontSize: '1.25vw', cursor: 'pointer', fontWeight: 400, color: theme.main });
 const mazeIconCss = (theme: Theme) =>
@@ -47,6 +49,7 @@ export const Sidebar = ({ styles, setTheme, setCode, tutorial }: SidebarProps) =
   const dispatch = useDispatch();
   const theme = useContext(MyTheme);
   const tutorialSeen = useSelector(selectTutorial);
+  const withWeight = useSelector(selectAlgorithmDraggable);
   const openTutorial = () => {
     tutorial();
     dispatch(setTutorialStatus());
@@ -56,8 +59,9 @@ export const Sidebar = ({ styles, setTheme, setCode, tutorial }: SidebarProps) =
   const smallIcon = smallIconCss(theme);
   const maze = mazeCss(theme);
   const mazeIcon = mazeIconCss(theme);
-  const smallWeight = smallWeightCss(theme);
-  const largeWeight = largeWeightCss(theme);
+  const grabItem = grabItemCss(withWeight);
+  const smallWeight = smallWeightCss(theme, withWeight);
+  const largeWeight = largeWeightCss(theme, withWeight);
   const tutorialIcon = bounceAnimation(!tutorialSeen);
 
   const drag = (event: React.DragEvent<HTMLSpanElement>, size: Cell.WEIGHT_SM | Cell.WEIGHT_LG) => {
@@ -87,10 +91,10 @@ export const Sidebar = ({ styles, setTheme, setCode, tutorial }: SidebarProps) =
         <span css={linkText} onClick={setTheme}>{`${theme.isDark ? 'Light' : 'Dark'} Mode`}</span>
       </div>
       <div css={weights}>
-        <span css={grabItem} draggable={true} onDragStart={event => drag(event, Cell.WEIGHT_SM)}>
+        <span css={grabItem} draggable={withWeight} onDragStart={event => drag(event, Cell.WEIGHT_SM)}>
           <KettlebellSvg css={smallWeight} />
         </span>
-        <span css={grabItem} draggable={true} onDragStart={event => drag(event, Cell.WEIGHT_LG)}>
+        <span css={grabItem} draggable={withWeight} onDragStart={event => drag(event, Cell.WEIGHT_LG)}>
           <KettlebellSvg css={largeWeight} />
         </span>
       </div>
