@@ -3,9 +3,9 @@
 import React, { useContext } from 'react';
 import { css, SerializedStyles, keyframes } from '@emotion/react';
 import { useDrag, useDrop } from 'react-dnd';
-import Start from '../../public/start.svg';
-import End from '../../public/end.svg';
-import KettlebellSvg from '../../public/kettlebell.svg';
+import Start from '../../public/icons/start.svg';
+import End from '../../public/icons/end.svg';
+import KettlebellSvg from '../../public/icons/kettlebell.svg';
 import { Cell as CellType, cellColor, CellIndexParam, DragItem, DragItemList, isDragType } from './table-utils';
 import { MyTheme, Theme } from '../../theme/theme';
 import { DESKTOP, MOBILE } from '../../config/config';

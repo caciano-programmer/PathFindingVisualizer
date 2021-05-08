@@ -1,21 +1,24 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
 import { css, SerializedStyles } from '@emotion/react';
-import { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import Select, { Styles } from 'react-select';
-import ResetSvg from '../../public/refresh.svg';
-import MenuSvg from '../../public/menu.svg';
+import ResetSvg from '../../public/icons/refresh.svg';
+import MenuSvg from '../../public/icons/menu.svg';
 import { AlgorithmKey, algorithms } from '../../algorithms/algorithms';
-import { MOBILE, DESKTOP, Option, primaryOptions, closedOptions } from '../../config/config';
+import { MOBILE, DESKTOP, Option, primaryOptions, closedOptions, Progress } from '../../config/config';
 import { Slideable } from '../mobile/slideable';
 import { useDispatch, useSelector } from 'react-redux';
-import { resetState, selectAlgorithm, setAlgorithm } from '../../redux/store';
-import { StartButton } from '../shared/startButton';
+import { resetState, selectAlgorithm, selectStatus, selectTutorial, setAlgorithm, setStatus } from '../../redux/store';
+import { Button } from '../shared/startButton';
 import { MyTheme, Theme } from '../../theme/theme';
+import { bounceAnimation } from '../shared/sharedUtils';
 
 const fullSize = css({ width: '100%', height: '100%' });
 const pointer = css({ cursor: 'pointer' });
 const container = css({
   display: 'grid',
-  [DESKTOP]: { gridTemplateColumns: '2.25fr 2fr 2fr 1fr' },
+  [DESKTOP]: { gridTemplateColumns: '1.75fr 1.75fr 2fr 1fr' },
   [MOBILE]: { gridTemplateColumns: '6.25fr 1fr' },
   alignItems: 'center',
 });
@@ -65,17 +68,21 @@ const selectCss = (theme: Theme): Partial<Styles<any, false, any>> => ({
   },
 });
 
-type HeaderProps = { styles: SerializedStyles; setTheme: () => void; setCode: () => void };
+type HeaderProps = { styles: SerializedStyles; setTheme: () => void; setCode: () => void; tutorial: () => void };
 
-export const Header = ({ styles, setCode, setTheme }: HeaderProps) => {
+export const Header = ({ styles, setCode, setTheme, tutorial }: HeaderProps) => {
   const [options, showOptions] = useState(closedOptions);
   const key = useSelector(selectAlgorithm);
   const dispatch = useDispatch();
   const theme = useContext(MyTheme);
+  const disabled = useSelector(selectStatus) === Progress.IN_PROGESS;
+  const tutorialSeen = useSelector(selectTutorial);
+  const visualize = React.useCallback(() => dispatch(setStatus(Progress.IN_PROGESS)), []);
 
   const logo = logoCss(theme);
   const select = selectCss(theme);
   const icon = iconCss(theme);
+  const bounce = bounceAnimation(!tutorialSeen);
 
   return (
     <>
@@ -90,12 +97,12 @@ export const Header = ({ styles, setCode, setTheme }: HeaderProps) => {
           isSearchable={false}
           isOptionDisabled={option => option.value === key}
         />
-        <StartButton styles={startButton} />
+        <Button styles={startButton} disabled={disabled} input="Visualize" fontSize="1.75vw" click={visualize} />
         <div css={[desktop, iconHolder]} onClick={() => dispatch(resetState())}>
           <ResetSvg css={[pointer, icon]} />
         </div>
         <div css={[mobile, iconHolder]} onClick={() => showOptions(primaryOptions)}>
-          <MenuSvg css={[pointer, icon]} />
+          <MenuSvg css={[pointer, icon, bounce]} />
         </div>
       </header>
       <Slideable
@@ -103,6 +110,7 @@ export const Header = ({ styles, setCode, setTheme }: HeaderProps) => {
         setOption={(option: Option) => showOptions(option)}
         setTheme={setTheme}
         setCode={setCode}
+        tutorial={tutorial}
       />
     </>
   );

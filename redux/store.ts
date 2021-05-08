@@ -9,6 +9,7 @@ export const setAlgorithm = createAction<AlgorithmKey>('set-algorithm');
 export const setMaze = createAction('set-maze');
 export const setDimension = createAction<Dimensions>('set-dimension');
 export const resetState = createAction('clear');
+export const setTutorialStatus = createAction('tutorial');
 
 const reducer = createReducer(InitialState, builder =>
   builder
@@ -19,12 +20,14 @@ const reducer = createReducer(InitialState, builder =>
       state.maze = randomMaze(rows, columns);
     })
     .addCase(setDimension, (state, { payload }) => ({ ...state, dimensions: payload }))
-    .addCase(resetState, ({ dimensions, algorithm }) => ({
+    .addCase(setTutorialStatus, state => ({ ...state, tutorial: true }))
+    .addCase(resetState, ({ dimensions, algorithm, tutorial }) => ({
       ...InitialState,
       sessionId: nanoid(),
       maze: [],
       dimensions,
       algorithm,
+      tutorial,
     })),
 );
 
@@ -33,5 +36,6 @@ export const selectAlgorithm = ({ algorithm }: State) => algorithm;
 export const selectSessionId = ({ sessionId }: State) => sessionId;
 export const selectMaze = ({ maze }: State) => maze;
 export const selectDimensions = ({ dimensions }: State) => dimensions;
+export const selectTutorial = ({ tutorial }: State) => tutorial;
 
 export const store = configureStore({ reducer, preloadedState: InitialState });

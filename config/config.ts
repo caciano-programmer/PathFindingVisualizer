@@ -28,6 +28,7 @@ export type State = {
   dimensions: Dimensions;
   maze: number[];
   sessionId: string;
+  tutorial: boolean;
 };
 
 const sessionId = nanoid();
@@ -39,6 +40,7 @@ export const InitialState: State = {
   dimensions: DesktopDimension,
   maze: [],
   sessionId,
+  tutorial: false,
 };
 
 export const Small_Weight_Cost = 5;

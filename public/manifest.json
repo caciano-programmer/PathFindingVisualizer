@@ -1,0 +1,29 @@
+{
+    "name": "Path Visualizer",
+    "short_name": "PathVis",
+    "theme_color": "#083a8c",
+    "background_color": "#eeeeee",
+    "display": "standalone",
+    "orientation": "portrait",
+    "description": "App to visualize and interact with some of the more popular path finding algorithms.",
+    "scope": "/",
+    "start_url": "/",
+    "icons": [
+      {
+        "src": "icons/android-chrome-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      },
+      {
+        "src": "icons/maskable.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "icons/android-chrome-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
+      }
+    ]
+  }

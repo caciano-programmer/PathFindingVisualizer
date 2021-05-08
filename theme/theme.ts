@@ -22,6 +22,8 @@ export type Theme = {
   code: { separators: string; functions: string; keywords: string; comments: string; others: string };
   scrollbar: { thumb: string; track: string };
   animation: { startColor: string; midColor: string; finalColor: string; path: string };
+  disabled: { primary: string; secondary: string };
+  tutorial: { overlay: string; text: string };
 };
 
 export const Light: Theme = {
@@ -43,6 +45,8 @@ export const Light: Theme = {
   code: { keywords: lightMain, comments: '#cccccc', separators: '#6330bc', functions: '#8191f0', others: '#282828' },
   scrollbar: { thumb: lightMain, track: 'rgba(8, 58, 140, .2)' },
   animation: { startColor: lightMain, midColor: '#410093', finalColor: 'rgba(65, 0, 147, .2)', path: '#f0ce78' },
+  disabled: { primary: '#616161', secondary: 'rgba(97, 97, 97, .2)' },
+  tutorial: { overlay: 'rgba(255,255,255,.9)', text: lightMain },
 };
 
 export const Dark: Theme = {
@@ -64,6 +68,8 @@ export const Dark: Theme = {
   code: { keywords: darkMain, comments: '#3d3d3d', separators: '#5e5e5e', functions: '#9bd5ff', others: 'white' },
   scrollbar: { thumb: '#004ba0', track: 'rgba(0, 75, 160, .2)' },
   animation: { startColor: '#002571', midColor: '#410093', finalColor: '#9f98ed', path: '#F9D77E' },
+  disabled: { primary: '#161616', secondary: 'rgba(60, 60, 60, .35)' },
+  tutorial: { overlay: 'rgba(0,0,0,.75)', text: 'white' },
 };
 
 export const MyTheme = React.createContext(Light);

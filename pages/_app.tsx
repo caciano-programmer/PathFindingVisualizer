@@ -1,6 +1,6 @@
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { TouchBackend } from 'react-dnd-touch-backend';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -10,6 +10,10 @@ import { store } from '../redux/store';
 import '../styles/globals.css';
 
 export default function MyApp({ Component }: AppProps) {
+  useEffect(() => {
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+  }, []);
+
   return (
     <>
       <HtmlHead />
@@ -31,10 +35,10 @@ function HtmlHead() {
     <Head>
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>Graph Visualizer</title>
+      <meta name="theme-color" content="#083a8c" />
+      <link rel="manifest" href="manifest.json" />
       <meta name="description" content="App to visualize path finding algorithms." />
-      <link rel="icon" href="/favicon-16x16.png" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" />
-      <link href="https://fonts.googleapis.com/css2?family=Lobster+Two:ital@0;1&display=swap" rel="stylesheet" />
+      <link rel="icon" href="/icons/favicon-16x16.png" />
     </Head>
   );
 }

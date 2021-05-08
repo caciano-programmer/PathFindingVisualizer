@@ -9,6 +9,12 @@ body {
     Helvetica Neue, sans-serif;
 }
 
+@font-face {
+  font-family: "Lobster Two";
+  font-display: swap;
+  src: url(/fonts/LobsterTwo-Bold.woff2) format("woff2");
+}
+
 body #__next {
   height: 100%;
   width: 100%;

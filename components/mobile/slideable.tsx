@@ -1,15 +1,16 @@
 import { css, SerializedStyles } from '@emotion/react';
 import { useSwipeable } from 'react-swipeable';
-import CloseSvg from '../../public/exit.svg';
-import { useDispatch } from 'react-redux';
-import { setAlgorithm, setMaze } from '../../redux/store';
+import CloseSvg from '../../public/icons/exit.svg';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectTutorial, setAlgorithm, setMaze, setTutorialStatus } from '../../redux/store';
 import { Description } from '../shared/description';
-import Next from '../../public/next.svg';
-import Back from '../../public/back.svg';
+import Next from '../../public/icons/next.svg';
+import Back from '../../public/icons/back.svg';
 import { AlgorithmKey, algorithms } from '../../algorithms/algorithms';
 import { closedOptions, Option, primaryOptions, secondaryOptions } from '../../config/config';
 import { useContext } from 'react';
 import { MyTheme, Theme } from '../../theme/theme';
+import { bounceAnimation } from '../shared/sharedUtils';
 
 const container = (open: boolean, theme: Theme) =>
   css({
@@ -42,22 +43,31 @@ const optionIcon = css({ flex: 1, textAlign: 'right', marginBottom: '-1vh' });
 const iconCss = (theme: Theme) => css({ width: '5.5vh', height: '5.5vh', fill: theme.main });
 const description = css({ padding: '10% 0 10% 0', width: '100%', height: '45%' });
 
-type SlideableProps = { state: Option; setOption: (option: Option) => void; setTheme: () => void; setCode: () => void };
+type SlideableProps = {
+  state: Option;
+  setOption: (option: Option) => void;
+  setTheme: () => void;
+  setCode: () => void;
+  tutorial: () => void;
+};
 
-export const Slideable = ({ state, setOption, setTheme, setCode }: SlideableProps) => {
+export const Slideable = ({ state, setOption, setTheme, setCode, tutorial }: SlideableProps) => {
   const handlers = useSwipeable({ onSwipedRight: () => setOption(closedOptions) });
   const dispatch = useDispatch();
   const theme = useContext(MyTheme);
+  const setTut = () => dispatch(setTutorialStatus());
+  const tutorialSeen = useSelector(selectTutorial);
 
   const containerCss = container(state.show, theme);
   const headerCss = header(theme);
   const largeIcon = largeIconCss(theme);
   const icon = iconCss(theme);
+  const bounce = bounceAnimation(!tutorialSeen);
   const mode = theme.isDark ? 'Light Mode' : 'Dark Mode';
 
-  const fnWithClose = (fn: () => void) => {
+  const fnWithClose = (...fns: (() => void)[]) => {
     setOption(closedOptions);
-    if (fn != undefined) fn();
+    fns.forEach(fn => fn());
   };
 
   return (
@@ -71,11 +81,11 @@ export const Slideable = ({ state, setOption, setTheme, setCode }: SlideableProp
       </div>
       {!state.secondary && (
         <>
-          <MenuOption style={icon} name="Choose Algorithm" clickFn={() => setOption(secondaryOptions)} />
-          <MenuOption style={icon} name="Generate Maze" clickFn={() => fnWithClose(() => dispatch(setMaze()))} />
-          <MenuOption style={icon} name="Tutorial" />
-          <MenuOption style={icon} name="Algorithm Code" clickFn={() => fnWithClose(setCode)} />
-          <MenuOption style={icon} name={mode} clickFn={() => fnWithClose(setTheme)} />
+          <MenuOption iconCss={icon} name="Choose Algorithm" clickFn={() => setOption(secondaryOptions)} />
+          <MenuOption iconCss={icon} name="Generate Maze" clickFn={() => fnWithClose(() => dispatch(setMaze()))} />
+          <MenuOption iconCss={icon} textCss={bounce} name="Tutorial" clickFn={() => fnWithClose(tutorial, setTut)} />
+          <MenuOption iconCss={icon} name="Algorithm Code" clickFn={() => fnWithClose(setCode)} />
+          <MenuOption iconCss={icon} name={mode} clickFn={() => fnWithClose(setTheme)} />
           <Description size="2.75vh" spacing="8vh" styles={description} />
         </>
       )}
@@ -83,7 +93,7 @@ export const Slideable = ({ state, setOption, setTheme, setCode }: SlideableProp
         <>
           {Object.entries(algorithms).map(([key, { name }]) => {
             const fn = () => fnWithClose(() => dispatch(setAlgorithm(key as AlgorithmKey)));
-            return <MenuOption style={icon} key={key} name={name} clickFn={fn} />;
+            return <MenuOption iconCss={icon} key={key} name={name} clickFn={fn} />;
           })}
         </>
       )}
@@ -91,12 +101,13 @@ export const Slideable = ({ state, setOption, setTheme, setCode }: SlideableProp
   );
 };
 
-function MenuOption({ name, clickFn, style }: { name: string; clickFn?: () => void; style: SerializedStyles }) {
+type MenuOptionProp = { name: string; clickFn?: () => void; iconCss?: SerializedStyles; textCss?: SerializedStyles };
+function MenuOption({ name, clickFn, iconCss, textCss }: MenuOptionProp) {
   return (
     <div css={option} onClick={clickFn}>
-      <span css={optionText}>{name}</span>
+      <span css={[optionText, textCss]}>{name}</span>
       <span css={optionIcon}>
-        <Next css={style} />
+        <Next css={iconCss} />
       </span>
     </div>
   );

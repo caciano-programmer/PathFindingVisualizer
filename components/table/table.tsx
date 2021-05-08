@@ -41,6 +41,7 @@ export default function Table({ styles }: { styles: SerializedStyles }) {
   const sessionId = useSelector(selectSessionId);
   const initialState = InitialTableState(start, end);
   const [cells, setCells] = useState(initialState);
+  const fn = useCallback((index: CellIndexParam, type: Cell) => setCells(prev => cellsUpdate(prev, index, type)), []);
   const dispatch = useDispatch();
   const theme = useContext(MyTheme);
 
@@ -54,8 +55,6 @@ export default function Table({ styles }: { styles: SerializedStyles }) {
     if (status === Progress.IN_PROGESS) timeoutIds = animations(cells, algorithmKey, rows, columns, setCells, dispatch);
     return () => timeoutIds.forEach(id => clearTimeout(id));
   }, [status]);
-
-  const fn = useCallback((index: CellIndexParam, type: Cell) => setCells(prev => cellsUpdate(prev, index, type)), []);
 
   return (
     <div css={[grid, styles]}>

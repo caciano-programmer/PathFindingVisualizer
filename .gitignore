@@ -36,3 +36,7 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# auto generated service worker files, from next-pwa
+public/sw.js
+public/*workbox*

@@ -1,34 +1,29 @@
 import { css, SerializedStyles } from '@emotion/react';
 import { useContext } from 'react';
-import { useDispatch } from 'react-redux';
-import { DESKTOP, Progress } from '../../config/config';
-import { setStatus } from '../../redux/store';
+import { DESKTOP } from '../../config/config';
 import { MyTheme, Theme } from '../../theme/theme';
 
-const button = (fontSize = '1.5vw', theme: Theme) =>
+const button = (theme: Theme, disabled: boolean, fontSize = '1.5vw') =>
   css({
-    backgroundColor: theme.visualize.color,
+    backgroundColor: disabled ? theme.disabled.secondary : theme.visualize.color,
     fontSize,
-    textAlign: 'center',
-    color: theme.main,
-    border: `1px solid ${theme.main}`,
-    borderRadius: '15px',
-    [DESKTOP]: { '&:hover': { boxShadow: `0 0 1vw .5vw ${theme.glow}` } },
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
+    fontWeight: 600,
+    color: disabled ? theme.disabled.primary : theme.main,
+    border: `1px solid ${disabled ? theme.disabled.primary : theme.main}`,
+    borderRadius: '30px',
+    [DESKTOP]: disabled ? '' : { '&:hover': { boxShadow: `0 0 1vw .5vw ${theme.glow}` } },
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    outline: 'none',
   });
 
-export const StartButton = ({ fontSize, styles }: { fontSize?: string; styles?: SerializedStyles }) => {
-  const dispatch = useDispatch();
+type ButtonProps = { fontSize: string; disabled?: boolean; input: string; styles?: SerializedStyles; click: () => any };
+export const Button = ({ fontSize, styles, disabled, input, click }: ButtonProps) => {
   const theme = useContext(MyTheme);
-
-  const buttonCss = button(fontSize, theme);
+  const buttonCss = button(theme, disabled || false, fontSize);
 
   return (
-    <button type="button" css={[buttonCss, styles]} onClick={() => dispatch(setStatus(Progress.IN_PROGESS))}>
-      <span>Visualize</span>
+    <button type="button" disabled={disabled} css={[buttonCss, styles]} onClick={click}>
+      <span>{input}</span>
     </button>
   );
 };

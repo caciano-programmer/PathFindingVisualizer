@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import Highlighter from 'react-highlight-words';
 import { codeText, highlightTypes } from './codeUtils';
-import CloseSvg from '../../public/exit.svg';
+import CloseSvg from '../../public/icons/exit.svg';
 import { DESKTOP, MOBILE } from '../../config/config';
 import { Dark, Light, MyTheme, Theme } from '../../theme/theme';
 
@@ -16,7 +16,7 @@ const scrollbarCss = ({ scrollbar }: Theme) =>
     '&::-webkit-scrollbar-corner': { backgroundColor: 'inherit' },
   });
 const getWrapper = (visible: boolean) =>
-  css({ position: 'fixed', top: visible ? 0 : '-100%', ...fullSize, transition: 'top .4s linear', zIndex: 2 });
+  css({ position: 'fixed', top: visible ? 0 : '-100%', ...fullSize, transition: 'top .4s linear', zIndex: 3 });
 const headerCss = (theme: Theme) =>
   css({
     position: 'relative',

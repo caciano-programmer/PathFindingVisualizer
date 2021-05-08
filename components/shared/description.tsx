@@ -1,6 +1,6 @@
-import KettlebellSvg from '../../public/kettlebell.svg';
-import StartSvg from '../../public/start.svg';
-import DestinationSvg from '../../public/end.svg';
+import KettlebellSvg from '../../public/icons/kettlebell.svg';
+import StartSvg from '../../public/icons/start.svg';
+import DestinationSvg from '../../public/icons/end.svg';
 import { css, SerializedStyles } from '@emotion/react';
 import { MyTheme, Theme } from '../../theme/theme';
 import { useContext } from 'react';

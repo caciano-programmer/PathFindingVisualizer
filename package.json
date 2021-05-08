@@ -4,9 +4,9 @@
   "private": false,
   "scripts": {
     "build": "rimraf .next && rimraf out && next build && next export",
-    "start": "rimraf .next and rimraf out && next dev",
+    "start": "rimraf .next && rimraf out && rimraf public/sw && next dev",
     "analyze": "cross-env ANALYZE=true next build",
-    "start-prod": "npm run build && http-server ./out",
+    "start-prod": "rimraf public/sw && npm run build && http-server ./out",
     "debug": "NODE_OPTIONS='--inspect' next dev",
     "eslint": "eslint ./"
   },
@@ -45,6 +45,7 @@
     "eslint-plugin-react": "^7.23.2",
     "eslint-plugin-react-hooks": "^4.2.0",
     "http-server": "^0.12.3",
+    "next-pwa": "^5.2.21",
     "prettier": "^2.2.1",
     "rimraf": "^3.0.2",
     "typescript": "^4.2.4"

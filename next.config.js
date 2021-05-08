@@ -1,3 +1,4 @@
+const withPWA = require('next-pwa');
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
@@ -9,5 +10,16 @@ const config = {
     webpack5: true,
   },
 };
+const pwaConfig = {
+  ...config,
+  pwa: {
+    dest: 'public',
+    sw: 'sw.js'
+  },
+};
 
-module.exports = withBundleAnalyzer(config);
+let myExport;
+if (process.env.ANALYZE) myExport = withBundleAnalyzer(config);
+else myExport = withPWA(pwaConfig);
+
+module.exports = myExport;
