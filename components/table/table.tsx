@@ -4,9 +4,16 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { css, SerializedStyles } from '@emotion/react';
 import { MemoizedCell } from './cell';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectAlgorithm, selectDimensions, selectMaze, selectSessionId, selectStatus } from '../../redux/store';
+import {
+  selectAlgorithm,
+  selectAlgorithmDraggable,
+  selectDimensions,
+  selectMaze,
+  selectSessionId,
+  selectStatus,
+} from '../../redux/store';
 import { COLUMNS, DESKTOP, MOBILE, MOBILE_COL, MOBILE_ROW, Progress, ROWS } from '../../config/config';
-import { animations, Cell, CellIndexParam, cellsUpdate } from './table-utils';
+import { animations, Cell, CellIndexParam, cellsUpdate, removeWeights } from './table-utils';
 import { MyTheme, Theme } from '../../theme/theme';
 
 const gridCss = (theme: Theme) =>
@@ -36,6 +43,7 @@ export default function Table({ styles }: { styles: SerializedStyles }) {
   const { rows, columns, start, end } = useSelector(selectDimensions);
   const status = useSelector(selectStatus);
   const algorithmKey = useSelector(selectAlgorithm);
+  const withWeight = useSelector(selectAlgorithmDraggable);
   const maze = useSelector(selectMaze);
   const mazeSet = React.useMemo(() => new Set(maze), [maze]);
   const sessionId = useSelector(selectSessionId);
@@ -50,6 +58,7 @@ export default function Table({ styles }: { styles: SerializedStyles }) {
   useEffect(() => setCells(InitialTableState(start, end)), [start, end]);
   useEffect(() => setCells(initialState.map((el, index) => (mazeSet.has(index) ? Cell.WALL : el))), [mazeSet]);
   useEffect(() => setCells(initialState), [sessionId, columns, rows]);
+  useEffect(() => setCells(state => removeWeights(state)), [withWeight]);
   useEffect(() => {
     let timeoutIds: NodeJS.Timeout[] = [];
     if (status === Progress.IN_PROGESS) timeoutIds = animations(cells, algorithmKey, rows, columns, setCells, dispatch);

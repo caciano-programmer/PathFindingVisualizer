@@ -38,7 +38,6 @@ export const Footer = ({ styles }: { styles: SerializedStyles }) => {
 
   return (
     <div css={[styles, container]}>
-      {console.log(withWeight)}
       <div
         css={[iconHolder, flexItem]}
         ref={withWeight ? dragWeight : null}

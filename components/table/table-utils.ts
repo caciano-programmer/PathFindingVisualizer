@@ -111,6 +111,14 @@ export function isDragType(inputCell: Cell): WeightType & StartPoint & { baseTyp
   return { isPoint, isWeight, small, large, start, end, searched: sS || wS, path: sP || wP, baseType };
 }
 
+export function removeWeights(cells: Cell[]) {
+  return cells.map(cell => {
+    const { isWeight, searched, path } = isDragType(cell);
+    if (isWeight) return searched ? Cell.SEARCHED : path ? Cell.PATH : Cell.CLEAR;
+    return cell;
+  });
+}
+
 // returns the index of start, end, and every location of a weight, every location of walls
 function getPoints(cells: Cell[]) {
   const weights = new Map<number, typeof Small_Weight_Cost | typeof Large_Weight_Cost>();
