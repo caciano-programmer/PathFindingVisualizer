@@ -40,6 +40,7 @@ function HtmlHead() {
       <link rel="manifest" href="manifest.json" />
       <meta name="description" content="App to visualize path finding algorithms." />
       <link rel="icon" href="/icons/favicon-16x16.png" />
+      <link rel="apple-touch-icon" href="/icons/apple-touch-icon-180x180.png" />
     </Head>
   );
 }
