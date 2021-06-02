@@ -11,9 +11,9 @@ import { MOBILE, DESKTOP, DesktopDimension, MobileDimension } from '../config/co
 import { setDimension } from '../redux/store';
 import Table from '../components/table/table';
 import { Dark, Light, MyTheme, Theme } from '../theme/theme';
-import { Tutorial } from '../components/tutorial/tutorial';
 
 const DynamicCode = dynamic(() => import('../components/code/code'));
+const DynamicTutorial = dynamic(() => import('../components/tutorial/tutorial'));
 
 const containerCss = (theme: Theme) =>
   css({
@@ -53,7 +53,7 @@ export default function Home() {
 
   return (
     <MyTheme.Provider value={theme}>
-      {tutorial && <Tutorial exit={toggleTutorial} />}
+      {tutorial && <DynamicTutorial exit={toggleTutorial} />}
       <DynamicCode isOpen={code} close={closeCode} />
       <div css={container}>
         <Header styles={header} setTheme={switchTheme} setCode={openCode} tutorial={toggleTutorial} />

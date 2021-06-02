@@ -17,12 +17,12 @@ const container = css({ display: 'flex', flexDirection: 'row', alignItems: 'cent
 const flexItem = css({ textAlign: 'center' });
 const iconHolder = css({ flex: 1 });
 const weightCss = (theme: Theme, draggable: boolean) =>
-  css({ fill: draggable ? theme.main : theme.disabled.primary, height: '10vh', width: '10vh' });
-const iconCss = (theme: Theme) => css({ fill: theme.main, height: '10vh', width: '10vh' });
+  css({ fill: draggable ? theme.main : theme.disabled.primary, height: '8.5vh', width: '8.5vh' });
+const iconCss = (theme: Theme) => css({ fill: theme.main, height: '8.5vh', width: '8.5vh' });
 const initialize = css({ flex: 1.5, height: '50%' });
 
 export const Footer = ({ styles }: { styles: SerializedStyles }) => {
-  const dragWeight = useDrag({ type: Cell.WEIGHT_SM, item: { type: Cell.WEIGHT_SM } })[1];
+  const dragWeight = useDrag({ type: Cell.WEIGHT_LG, item: { type: Cell.WEIGHT_LG } })[1];
   const dispatch = useDispatch();
   const disabled = useSelector(selectStatus) === Progress.IN_PROGESS;
   const withWeight = useSelector(selectAlgorithmDraggable);
@@ -33,7 +33,7 @@ export const Footer = ({ styles }: { styles: SerializedStyles }) => {
   const weight = weightCss(theme, withWeight);
 
   const dragStart = (event: React.DragEvent<HTMLDivElement>) => {
-    event.dataTransfer.setData('text/plain', JSON.stringify({ movedType: Cell.WEIGHT_SM }));
+    event.dataTransfer.setData('text/plain', JSON.stringify({ movedType: Cell.WEIGHT_LG }));
   };
 
   return (

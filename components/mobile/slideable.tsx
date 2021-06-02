@@ -2,7 +2,7 @@ import { css, SerializedStyles } from '@emotion/react';
 import { useSwipeable } from 'react-swipeable';
 import CloseSvg from '../../public/icons/exit.svg';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectTutorial, setAlgorithm, setMaze, setTutorialStatus } from '../../redux/store';
+import { selectAlgorithm, selectTutorial, setAlgorithm, setMaze, setTutorialStatus } from '../../redux/store';
 import { Description } from '../shared/description';
 import Next from '../../public/icons/next.svg';
 import Back from '../../public/icons/back.svg';
@@ -42,6 +42,8 @@ const optionText = css({ flex: 4, fontSize: '3.25vh' });
 const optionIcon = css({ flex: 1, textAlign: 'right', marginBottom: '-1vh' });
 const iconCss = (theme: Theme) => css({ width: '5.5vh', height: '5.5vh', fill: theme.main });
 const description = css({ padding: '10% 0 10% 0', width: '100%', height: '45%' });
+const disabledIconCss = (theme: Theme) => css({ fill: theme.disabled.primary, width: '5.5vh', height: '5.5vh' });
+const disabledOptionCss = (theme: Theme) => css({ color: theme.disabled.primary });
 
 type SlideableProps = {
   state: Option;
@@ -57,11 +59,14 @@ export const Slideable = ({ state, setOption, setTheme, setCode, tutorial }: Sli
   const theme = useContext(MyTheme);
   const setTut = () => dispatch(setTutorialStatus());
   const tutorialSeen = useSelector(selectTutorial);
+  const algorithm = useSelector(selectAlgorithm);
 
   const containerCss = container(state.show, theme);
   const headerCss = header(theme);
   const largeIcon = largeIconCss(theme);
   const icon = iconCss(theme);
+  const disabledIcon = disabledIconCss(theme);
+  const disabledOption = disabledOptionCss(theme);
   const bounce = bounceAnimation(!tutorialSeen);
   const mode = theme.isDark ? 'Light Mode' : 'Dark Mode';
 
@@ -93,6 +98,8 @@ export const Slideable = ({ state, setOption, setTheme, setCode, tutorial }: Sli
         <>
           {Object.entries(algorithms).map(([key, { name }]) => {
             const fn = () => fnWithClose(() => dispatch(setAlgorithm(key as AlgorithmKey)));
+            if (key === algorithm)
+              return <MenuOption key={key} name={name} iconCss={disabledIcon} textCss={disabledOption} />;
             return <MenuOption iconCss={icon} key={key} name={name} clickFn={fn} />;
           })}
         </>
