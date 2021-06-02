@@ -1,7 +1,8 @@
 {
   "name": "graph-visualizer",
   "version": "0.1.0",
-  "private": false,
+  "private": true,
+  "license": "UNLICENSED",
   "scripts": {
     "build": "rimraf .next out public/sw.js* public/workbox-* && next build && next export",
     "start": "rimraf .next out public/sw.js* public/workbox-* && next dev",
@@ -35,8 +36,8 @@
     "@types/react-highlight-words": "^0.16.2",
     "@types/react-redux": "^7.1.16",
     "@types/react-select": "^4.0.15",
-    "@typescript-eslint/eslint-plugin": "^4.25.0",
-    "@typescript-eslint/parser": "^4.25.0",
+    "@typescript-eslint/eslint-plugin": "^4.26.0",
+    "@typescript-eslint/parser": "^4.26.0",
     "babel-plugin-inline-react-svg": "^2.0.1",
     "cross-env": "^7.0.3",
     "eslint": "^7.27.0",
