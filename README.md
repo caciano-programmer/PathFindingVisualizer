@@ -13,3 +13,7 @@ View live demo: https://path-finding-visualizer-one.vercel.app/
 
 To run this locally simply download the code, install neccessary depenedency packages, and then it can be
 run with the simple command "npm start". Will display on localhost port 3000.
+
+![Light Theme](https://raw.github.com/caciano-programmer/PathFindingVisualizer/master/screenshots/pathfinder-light.png)
+
+![Dark Theme](https://raw.github.com/caciano-programmer/PathFindingVisualizer/master/screenshots/pathfinder-dark.png)
